@@ -1,0 +1,172 @@
+' ==============================================================================
+' @file 4-2-crisismap-data-ERD.puml
+' @brief Initial logical data model for the Crisis Map disaster management system.
+'
+' @details
+' This artifact defines the principal persistent entities required to support 
+' the foundational architecture of the Crisis Map platform. The model captures 
+' core domain relationships encompassing system users, disaster reports, 
+' categorizations, multimedia evidence, resource allocation, and spatial alert 
+' subscriptions, abstracting away the physical database implementation.
+'
+' Architectural Scope & Rationale:
+' This model is explicitly scoped to the logical architecture tier. It focuses 
+' on capturing stable domain concepts, independent identities (Primary Keys), 
+' representative domain attributes, and precise relationship cardinalities. 
+'
+' System Requirements Addressed:
+' This model establishes the structural integrity of the application by defining:
+' - The minimal viable data entities the system must persist.
+' - The entity bounded contexts and their independent life cycles.
+' - The relational mapping between disaster events, responders, and resources.
+' - The cardinality constraints governing data integrity and application logic.
+'
+' Author(s): Vlado Sruk
+' Context: Software Engineering Course
+'
+' AI Usage Disclosure:
+' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
+' reviewed by the author, who is responsible for the final content.
+'
+' Traceability Note:
+' The entities, attributes, and relationships defined herein must strictly map 
+' to the finalized software implementation. Any architectural deviations introduced 
+' during development must be retroactively updated in this model to maintain 
+' evidence chain completeness from requirements to code.
+'
+' Diagram level: Logical data model
+' Diagram type:  Entity-Relationship Diagram (ERD)
+' ==============================================================================
+
+@startuml
+
+title 
+
+' ==============================================================================
+' Diagram Layout and Style
+' ==============================================================================
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+skinparam entity {
+    BackgroundColor #E7F1FF
+    BorderColor #0D6EFD
+    FontColor #212529
+}
+
+skinparam note {
+    BackgroundColor #F8F9FA
+    BorderColor #212529
+    FontColor #212529
+}
+
+skinparam ArrowColor #212529
+
+' ==============================================================================
+' Core User Entity
+' ==============================================================================
+
+entity "User" as User {
+    * user_id : ID <<PK>>
+    --
+    display_name : text
+    role : enum
+}
+
+' ==============================================================================
+' Disaster Reporting Entities
+' ==============================================================================
+
+entity "Disaster Report" as Report {
+    * report_id : ID <<PK>>
+    --
+    * user_id : ID <<FK>>
+    * category_id : ID <<FK>>
+    description : text
+    severity : enum
+    status : enum
+    latitude : decimal
+    longitude : decimal
+    submitted_at : datetime
+}
+
+entity "Disaster Category" as Category {
+    * category_id : ID <<PK>>
+    --
+    name : text
+}
+
+entity "Report Photo" as Photo {
+    * photo_id : ID <<PK>>
+    --
+    * report_id : ID <<FK>>
+    url : text
+}
+
+' ==============================================================================
+' Resource Entities
+' ==============================================================================
+
+entity "Resource" as Resource {
+    * resource_id : ID <<PK>>
+    --
+    * resource_type_id : ID <<FK>>
+    name : text
+    quantity : integer
+    status : enum
+}
+
+entity "Resource Type" as ResourceType {
+    * resource_type_id : ID <<PK>>
+    --
+    name : text
+}
+
+entity "Resource Allocation" as Allocation {
+    * allocation_id : ID <<PK>>
+    --
+    * report_id : ID <<FK>>
+    * resource_id : ID <<FK>>
+    allocated_quantity : integer
+    allocated_at : datetime
+}
+
+' ==============================================================================
+' Alert / Notification Preference Entity
+' ==============================================================================
+
+entity "Alert Subscription" as Subscription {
+    * subscription_id : ID <<PK>>
+    --
+    * user_id : ID <<FK>>
+    latitude : decimal
+    longitude : decimal
+    radius_km : decimal
+    enabled : boolean
+}
+
+' ==============================================================================
+' Entity Relationships
+' ==============================================================================
+
+User "1" ||--o{ "0..*" Report : submits ►
+Category "1" ||--o{ "0..*" Report : classifies ►
+Report "1" ||--o{ "0..*" Photo : has ►
+
+ResourceType "1" ||--o{ "0..*" Resource : groups ►
+
+Report "1" ||--o{ "0..*" Allocation : requires ►
+Resource "1" ||--o{ "0..*" Allocation : deployed as ►
+
+User "1" ||--o{ "0..*" Subscription : configures ►
+
+' ==============================================================================
+' Design Guidance
+' ==============================================================================
+
+
+
+@enduml

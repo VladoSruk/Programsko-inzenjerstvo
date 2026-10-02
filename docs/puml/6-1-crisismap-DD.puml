@@ -1,0 +1,121 @@
+' ==============================================================================
+' @file 6-1-crisismap-deployment.puml
+' @brief Formal UML Deployment diagram with explicit communication and dependency paths.
+'
+' @details
+' This artifact unifies the physical node topology with both runtime communication 
+' protocols (HTTPS/TCP) and configuration dependencies (environment variables). 
+' It utilizes strict UML 2.x stereotypes to map the written Render setup 
+' instructions directly to the visual architecture.
+'
+' Architectural Scope & Rationale:
+' By combining communication lines (-->) and dependency lines (..>), this diagram 
+' serves as a complete configuration blueprint. It proves that the architecture 
+' is secure (via internal database routing) and explicitly lists the environment 
+' variables required for the artifacts to function[cite: 3].
+'
+' Author(s): Vlado Sruk
+' Context: Software Engineering Course / Project Documentation
+'
+' AI Usage Disclosure:
+' Designed by Vlado Sruk. Generative AI tools were utilized for structural UML 
+' formalization and documentation comments. The author has validated and modified 
+' all AI-generated outputs, assuming full responsibility for the architectural logic.
+'
+' Traceability Note (Sljedivost):
+' The ports, protocols, and configuration dependencies (<<configuration>>) defined 
+' herein must strictly match the project's actual production environment variables 
+' configured in Render[cite: 3]. Any deviations must be retroactively updated to 
+' maintain evidence chain completeness (lanac dokazne zatvorenosti).
+'
+' Diagram level: Physical Deployment Architecture
+' Diagram type:  Deployment Diagram
+' ==============================================================================
+
+@startuml
+title  
+
+skinparam defaultFontName Arial
+skinparam node {
+    BackgroundColor White
+    BorderColor DarkSlateGray
+}
+skinparam artifact {
+    BackgroundColor LightYellow
+    BorderColor DarkGoldenRod
+}
+skinparam note {
+    BackgroundColor LightCyan
+    BorderColor DarkCyan
+}
+
+' ==============================================================================
+' Nodes, Environments, and Configuration Artifacts
+' ==============================================================================
+node "Citizen Device" as Device <<device>> {
+  node "Web Browser" as Browser <<executionEnvironment>>
+}
+
+cloud "Render Platform" as Render {
+  
+  node "Static Site Host" as Static <<executionEnvironment>> {
+    artifact "Web Client Build" as Frontend <<artifact>>
+    artifact "VITE_API_BASE_URL" as FrontendEnv <<configuration>>
+    
+    ' Dependency: Frontend requires the public API URL
+    Frontend ..> FrontendEnv : <<requires>>
+  }
+  
+  node "Backend Web Service" as Service <<executionEnvironment>> {
+    node "Node.js Runtime" as NodeEngine <<executionEnvironment>> {
+      artifact "Backend Application" as Backend <<artifact>>
+    }
+    artifact "DATABASE_URL" as BackendEnv <<configuration>>
+    
+    ' Dependency: Backend requires the runtime and the secret DB URL
+    Backend ..> BackendEnv : <<requires>>
+    Backend ..> NodeEngine : <<deploy>>
+  }
+  
+  database "Managed PostgreSQL" as DB <<database>> {
+    artifact "001_create_schema.sql" as Schema <<artifact>>
+  }
+}
+
+cloud "External Providers" as External {
+  node "Map Tile Service" as Maps <<server>>
+  node "Firebase Cloud Messaging" as FCM <<server>>
+}
+
+' ==============================================================================
+' Operational Dependencies across Nodes
+' ==============================================================================
+' Dependency: Backend cannot operate unless the DB schema is applied first
+Backend ..> Schema : <<dependsOn>>
+
+' ==============================================================================
+' Active Communication Paths (Live Network Traffic)
+' ==============================================================================
+
+' 1. Public Asset Delivery
+Browser -[#blue]-> Static : <<HTTPS : 443>> \n fetch static assets
+
+' 2. Public API Traffic
+Browser -[#blue]-> Service : <<HTTPS : 443>> \n REST / JSON payload
+note on link
+  Service listens on 0.0.0.0 
+  via Render's dynamic PORT[cite: 3].
+end note
+
+' 3. Internal Database Routing
+Service -[#green,bold]-> DB : <<TCP/IP : 5432>> \n connection pool
+note on link
+  Uses Render's internal connection URL.
+  Not exposed to the public internet[cite: 3].
+end note
+
+' 4. Outbound Third-Party API Traffic
+Service -[#darkorange]-> FCM : <<HTTPS : 443>> \n async push trigger
+Browser -[#darkorange]-> Maps : <<HTTPS : 443>> \n fetch map tiles
+
+@enduml

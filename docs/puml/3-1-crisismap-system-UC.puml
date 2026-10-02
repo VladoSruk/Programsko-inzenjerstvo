@@ -1,0 +1,170 @@
+Code snippet
+' ==============================================================================
+' @file 3-1-crisismap-use-cases.puml
+' @brief Core use case diagram for the Crisis Map disaster management system.
+'
+' @details
+' This artifact defines the primary actors and their interactions with the 
+' Crisis Map platform. It captures the behavioral boundaries of the system, 
+' detailing how citizens, disaster managers, and automated systems trigger 
+' core business processes such as reporting disasters, managing resources, 
+' and broadcasting alerts.
+'
+' Architectural Scope & Rationale:
+' This model is explicitly scoped to the requirements and behavioral tier. 
+' It focuses on user goals and system boundaries rather than implementation 
+' specifics. Internal system logic, data storage, and UI workflows are 
+' deliberately deferred to subsequent structural and behavioral models.
+'
+' System Requirements Addressed:
+' This model establishes the functional baseline of the application by defining:
+' - The primary and secondary actors interacting with the system.
+' - The core functional requirements grouped by user goals.
+' - The system boundaries and inclusion/extension relationships.
+' - The privilege separation between standard users and system administrators.
+'
+' Author(s): Vlado Sruk
+' Context: Software Engineering Course
+'
+' AI Usage Disclosure:
+' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
+' reviewed by the author, who is responsible for the final content.
+'
+' Traceability Note:
+' The use cases defined herein must strictly map to the implemented features 
+' and functional testing suites. Any behavioral deviations introduced during 
+' development must be retroactively updated in this model to maintain evidence 
+' chain completeness from requirements to code.
+'
+' Diagram level: System Requirements
+' Diagram type:  Use Case Diagram
+' ==============================================================================
+
+@startuml
+
+title 
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
+
+skinparam actor {
+    BackgroundColor #F8F9FA
+    BorderColor #212529
+    ' External systems are visually distinct from human actors.
+    BackgroundColor<<external system>> #FFF3CD
+    BorderColor<<external system>> #856404
+}
+
+skinparam usecase {
+    BackgroundColor #E7F1FF
+    BorderColor #0D6EFD
+    ArrowColor #212529
+}
+
+' ==============================================================================
+' Primary Actors
+' ==============================================================================
+
+actor User as "Application User"
+actor Citizen as "Citizen\n(Registered)"
+actor Visitor as "Visitor\n(Anonymous)"
+actor Manager as "Disaster Manager"
+
+' Citizen and Visitor are specialized user roles.
+Citizen -|> User
+Visitor -|> User
+
+' Layout-only relationships.
+Manager -[hidden]down-> Citizen
+Citizen -[hidden]down-> Visitor
+
+' ==============================================================================
+' Secondary - Supporting Actors
+' ==============================================================================
+
+actor "OAuth / Identity Provider" as IdP <<external system>>
+actor "Map Service" as Maps <<external system>>
+actor "Notification Service" as Notifications <<external system>>
+
+' ==============================================================================
+' System Boundary
+' ==============================================================================
+
+rectangle "Crisis Map System" as CrisisMap {
+
+    ' Access
+    (Sign In / Authenticate) as UC_SignIn
+
+    ' Reports and map
+    (View Reports on Map) as UC_Map
+    (Filter Incident Layers) as UC_Filter
+    (Submit Disaster Report) as UC_Report
+    (Validate Report Data) as UC_ValidateReport
+    (Upload Photo Evidence) as UC_UploadPhoto
+
+    ' Resource coordination
+    (View Available Resources) as UC_Resources
+    (Allocate Relief Resources) as UC_Allocate
+
+    ' Alerts
+    (Receive Proximity Alerts) as UC_Alert
+}
+
+' ==============================================================================
+' Actor-to-Use-Case Associations
+' ==============================================================================
+
+' Common user capability
+User -- UC_Map
+
+' Anonymous visitor capability
+Visitor -- UC_SignIn
+
+' Registered citizen capabilities
+Citizen -- UC_Report
+Citizen -- UC_Alert
+
+' Disaster manager capabilities
+Manager -- UC_Resources
+Manager -- UC_Allocate
+
+' ==============================================================================
+' UML Relationships
+' ==============================================================================
+
+' Optional behavior extending a complete base use case.
+UC_Map <.. UC_Filter : <<extend>>\n[filter requested]
+
+UC_Report <.. UC_UploadPhoto : <<extend>>\n[photo provided]
+
+' Mandatory reused behavior performed during report submission.
+UC_Report ..> UC_ValidateReport : <<include>>
+
+' Authentication is intentionally NOT modeled as <<include>> for protected
+' operations. A user may already be authenticated before starting them.
+' Treat authentication as a precondition unless sign-in is always executed
+' within the use case itself.
+
+' ==============================================================================
+' Secondary Actor Interactions
+' ==============================================================================
+
+UC_SignIn -right- IdP
+
+' Map Service is deliberately shown in this educational diagram to expose an
+' important external dependency. In a stricter goal-oriented model it may be
+' shown only in architecture or deployment views.
+UC_Map -right- Maps
+
+' Keep this actor only if external notification delivery is part of the
+' approved scope and implementation.
+UC_Alert -right- Notifications
+
+' Layout-only ordering for the external-system column.
+IdP -[hidden]down-> Maps
+Maps -[hidden]down-> Notifications
+
+@enduml

@@ -1,0 +1,100 @@
+' ==============================================================================
+' @file 4-4-crisismap-submit-report-SD.puml
+' @brief Conceptual Sequence diagram for disaster report submission and location validation.
+'
+' @details
+' This artifact models the dynamic interaction of a citizen submitting a new 
+' disaster report. It captures the frontend client logic for location permissions 
+' and the backend API orchestration for validation and persistence.
+'
+' System Requirements Addressed:
+' - Graceful degradation of UI features (handling blocked location APIs).
+' - Separation of concerns across API routing, business logic, and storage.
+' - Explicit REST API contracts (400, 201, 500) for error and success states.
+'
+' Author(s): Vlado Sruk
+' Context: Software Engineering Course
+'
+' AI Usage Disclosure:
+' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
+' reviewed by the author, who is responsible for the final content.
+'
+' Traceability Note:
+' The HTTP statuses, method calls, and conditional branches defined herein must 
+' map directly to the finalized frontend component logic and backend controllers. 
+'
+' Diagram level: Conceptual Interaction Design
+' Diagram type:  Sequence Diagram
+' ==============================================================================
+
+@startuml
+title 
+skinparam maxMessageSize 150
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+autonumber
+
+' ==============================================================================
+' Lifelines (Stereotyped)
+' ==============================================================================
+actor Citizen as User
+participant WebClient as Web <<UI>>
+participant BrowserGeoAPI as Geo <<External>>
+participant ReportAPI as API <<API>>
+participant ReportService as Service <<Application>>
+database ReportStore as Store <<Persistence>>
+
+' ==============================================================================
+' Phase 1: Location Resolution
+' ==============================================================================
+User -> Web++ : open report form
+
+alt device location requested
+  User -> Web : use current location
+  Web -> Geo++ : getCurrentPosition()
+  
+  alt permission granted
+    Geo --> Web : coordinates
+    Web --> User : show selected location
+  else permission denied
+    Geo --> Web-- : permission error
+    Web --> User : offer manual selection
+    User -> Web : select location on map
+  end
+  
+else manual location chosen
+  User -> Web : select location on map
+end
+
+' ==============================================================================
+' Phase 2: Submission, Validation & Storage
+' ==============================================================================
+User -> Web : enter details & submit
+Web -> API++ : POST /reports (details, coords)
+API -> Service++ : validateAndSubmit()
+
+alt input or location invalid
+  Service --> API : ValidationException
+  API --> Web : 400 Bad Request
+  Web --> User : show corrections
+  
+else report valid
+  Service -> Store++ : save(report)
+  
+  alt save succeeds
+    Store --> Service : report ID
+    Service --> API : success
+    API --> Web : 201 Created
+    Web --> User : show confirmation
+    
+  else storage fails
+    Store --> Service-- : DataException
+    Service --> API-- : SystemException
+    API --> Web-- : 500 Internal Server Error
+    Web --> User-- : show failure & retry option
+  end
+end
+
+@enduml

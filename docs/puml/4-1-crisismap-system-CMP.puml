@@ -1,0 +1,96 @@
+' ==============================================================================
+' @file 4-1-crisismap-architecture.puml
+' @brief High-level component architecture for the Crisis Map platform.
+'
+' @details
+' This artifact defines the principal structural components required to support 
+' the Crisis Map system. The model captures the overarching software architecture, 
+' encompassing the client applications, API gateways, core microservices/modules, 
+' database layers, and external third-party integrations (e.g., mapping, SMS).
+'
+' Architectural Scope & Rationale:
+' This model is explicitly scoped to the macro-architecture tier. It focuses 
+' on identifying bounded contexts, system modularity, and communication protocols. 
+' Code-level class structures, internal method implementations, and physical 
+' network topologies are deliberately deferred to lower-level design phases.
+'
+' System Requirements Addressed:
+' This model establishes the structural foundation of the application by defining:
+' - The separation of concerns across presentation, logic, and data layers.
+' - The interfaces and dependencies between core backend modules.
+' - The integration points with external APIs and services.
+' - The architectural constraints governing scalability and maintainability.
+'
+' Author(s): Vlado Sruk
+' Context: Software Engineering Course
+'
+' AI Usage Disclosure:
+' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
+' reviewed by the author, who is responsible for the final content.
+'
+' Traceability Note:
+' The architectural components defined herein must strictly map to the finalized 
+' repository structure and deployed services. Any architectural deviations 
+' introduced during development must be retroactively updated in this model to 
+' maintain evidence chain completeness from requirements to code.
+'
+' Diagram type: UML Component Diagram
+' Abstraction:  High-level logical architecture
+' Viewpoint:    Software structure and component dependencies
+' ==============================================================================
+
+@startuml
+
+' ==============================================================================
+' Diagram Layout and Style
+' ==============================================================================
+
+left to right direction
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+
+skinparam component {
+    BackgroundColor #E7F1FF
+    BorderColor #0D6EFD
+    ArrowColor #212529
+}
+
+skinparam database {
+    BackgroundColor   #FFF3CD
+    BorderColor #212529
+}
+
+' ==============================================================================
+' Crisis Map System Boundary and Internal Components
+' ==============================================================================
+
+rectangle "Crisis Map System" {
+  component "Web client" as Web
+  rectangle "Backend application" {
+    component "Report API" as API
+    component "Report service" as Reports
+    component "Notification worker" as Notify
+  }
+  database "PostgreSQL" as DB
+}
+' ==============================================================================
+' External Systems
+' ==============================================================================
+
+component "Map tile provider\n(external)" as Maps
+component "Firebase Cloud Messaging\n(external)" as FCM
+
+' ==============================================================================
+' Component Dependencies and Interfaces
+' ==============================================================================
+
+Web --> API : report requests / responses
+Web --> Maps : map tiles
+API --> Reports : submit and retrieve reports
+Reports --> DB : store and query reports
+Notify --> DB : find confirmed reports\nand recipients
+Notify --> FCM : send notification requests
+@enduml

@@ -1,0 +1,94 @@
+' ==============================================================================
+' @file 4-5-crisismap-report-SM.puml
+' @brief Conceptual state machine modeling system operating modes and infrastructure availability.
+'
+' @details
+' This artifact utilizes orthogonal regions (concurrent states) to model the global 
+' system behavior of Crisis Map. It captures two independent but parallel lifecycles: 
+' the business-domain alert level (Crisis management mode) and the infrastructure 
+' health status (Service availability).
+'
+' System Requirements Addressed:
+' This diagram dictates the high-level operational requirements by defining:
+' - The valid progression of crisis escalation and de-escalation protocols.
+' - The fallback availability modes during partial external service outages.
+' - The concurrent execution of business operations and infrastructure monitoring.
+'
+' Author(s): Vlado Sruk
+' Context: Software Engineering Course / Project Documentation
+'
+' AI Usage Disclosure:
+' Designed by Vlado Sruk. Generative AI tools were utilized for linguistic 
+' revision, inline commenting, and structural formatting of the header. The author 
+' has comprehensively reviewed, validated, and modified all AI-generated outputs, 
+' assuming full responsibility for the final architectural logic.
+'
+' Traceability Note:
+' The global states defined herein must be structurally verifiable in the implemented 
+' system (e.g., via configuration flags, active incident aggregates, and health endpoints). 
+' Any deviations between these modeled operational protocols and the final deployed 
+' system behaviors must be retroactively updated to maintain evidence chain 
+' completeness.
+'
+' Diagram level: System-Level Behavioral Design
+' Diagram type:  State Machine Diagram
+' ==============================================================================
+
+@startuml
+title 
+' ==============================================================================
+' Global System Context with Extended State Variables
+' ==============================================================================
+state "Crisis Map operation" as Operation {
+  
+  ' Extended State Variables
+  Operation : activeVerifiedDisasters : Integer = 0
+  Operation : failedMapPings : Integer = 0
+
+  ' ----------------------------------------------------------------------------
+  ' Orthogonal Region 1: Business Domain Operations
+  ' ----------------------------------------------------------------------------
+  state "Crisis management mode" as Mode {
+    [*] --> Routine
+    state "Routine monitoring" as Routine
+    state "Heightened watch" as Watch
+    state "Active crisis" as Active
+    state "Follow-up" as FollowUp
+
+    Routine --> Watch : coordinator raises alert level
+    Watch --> Routine : threat ruled out
+    
+    ' Utilizing state variable in Map Condition [...]
+    Routine --> Active : disaster verified [activeVerifiedDisasters > 0] / publish advisory
+    Watch --> Active : disaster verified [activeVerifiedDisasters > 0] / publish advisory
+    
+    ' Cannot end response until all active disasters are resolved
+    Active --> FollowUp : response ended [activeVerifiedDisasters == 0]
+    
+    FollowUp --> Active : new verified disaster [activeVerifiedDisasters > 0]
+    FollowUp --> Routine : follow-up completed
+  }
+
+  --
+
+  ' ----------------------------------------------------------------------------
+  ' Orthogonal Region 2: Infrastructure Health Monitoring
+  ' ----------------------------------------------------------------------------
+  state "Service availability" as Availability {
+    [*] --> Online
+    state "Online" as Online
+    state "Limited: map unavailable" as Limited
+    state "Unavailable: backend unreachable" as Unavailable
+
+    ' Utilizing state variable for fault tolerance threshold
+    Online --> Limited : map provider fails [failedMapPings >= 3]
+    Limited --> Online : map provider recovers [failedMapPings == 0]
+    
+    Online --> Unavailable : backend becomes unreachable
+    Limited --> Unavailable : backend becomes unreachable
+    
+    Unavailable --> Online : backend recovers [failedMapPings == 0]
+    Unavailable --> Limited : backend recovers [failedMapPings >= 3]
+  }
+}
+@enduml

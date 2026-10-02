@@ -1,0 +1,130 @@
+' ==============================================================================
+' @file 4-3-crisismap-domain-model.puml
+' @brief Structural class diagram defining the domain model and application services.
+'
+' @details
+' This artifact models the core business logic, entity structures, and application 
+' services for the Crisis Map disaster reporting flow. It enforces strict 
+' architectural boundaries by categorizing classes into structural abstraction 
+' levels (Application Layer vs. Domain Layer).
+'
+' Architectural Scope & Rationale:
+' This model is explicitly scoped to the structural design and domain tier. 
+' It utilizes Domain-Driven Design (DDD) concepts by distinguishing between 
+' Aggregate Roots (DisasterReport), Value Objects (Location), and Application 
+' Services (ReportWorkflow). The persistence mechanism is abstracted via the 
+' ReportRepository interface to maintain domain purity.
+'
+' System Requirements Addressed:
+' This model dictates the software implementation by defining:
+' - The encapsulation of domain state and controlled state transitions.
+' - The separation of Application workflows from Domain logic.
+' - The exact multiplicities and lifecycle dependencies between classes.
+'
+' Author(s): Vlado Sruk
+' Context: Software Engineering Course
+'
+' AI Usage Disclosure:
+' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
+' reviewed by the author, who is responsible for the final content.
+'
+' Traceability Note:
+' The structural properties, methods, and relationships defined herein must 
+' strictly map to the finalized object-oriented source code. Any deviations 
+' introduced during development must be retroactively updated in this model 
+' to maintain evidence chain completeness.
+'
+' Diagram level: Structural / Domain Design
+' Diagram type:  Class Diagram
+' ==============================================================================
+@startuml
+
+title 
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
+
+' ==============================================================================
+' Application Layer 
+' Orchestrates use cases and delegates to the domain.
+' ==============================================================================
+package "Application Layer" {
+  
+  class ReportWorkflow <<Service>> {
+    +submit(location: Location, severity: Severity): DisasterReport
+    +approve(reportId: UUID): void
+    +reject(reportId: UUID, reason: String): void
+    +close(reportId: UUID): void
+  }
+  
+}
+
+' ==============================================================================
+' Domain Layer 
+' Encapsulates core business state, rules, and logic.
+' ==============================================================================
+package "Domain Layer" {
+
+  class DisasterReport <<Entity>> <<AggregateRoot>> {
+    -id: UUID
+    -status: ReportStatus
+    -severity: Severity
+    +approve(): void
+    +reject(reason: String): void
+    +close(): void
+  }
+  
+  class Location <<ValueObject>> {
+    +latitude: Decimal
+    +longitude: Decimal
+  }
+  
+  enum ReportStatus <<Enum>> {
+    SUBMITTED
+    VISIBLE
+    REJECTED
+    CLOSED
+  }
+  
+  enum Severity <<Enum>> {
+    LOW
+    MEDIUM
+    HIGH
+  }
+  
+  interface ReportRepository <<Repository>> {
+    +findById(id: UUID): DisasterReport
+    +save(report: DisasterReport): void
+  }
+  
+}
+
+' ==============================================================================
+' Structural Relationships & Multiplicities
+' ==============================================================================
+
+' Composition mapping (Value Object lifecycle is bound to the Entity)
+DisasterReport "1" *-- "1" Location : has ►
+
+' Application Service dependencies on the Domain
+ReportWorkflow "1" --> "0..*" DisasterReport : creates / changes ►
+ReportWorkflow "1" --> "1" ReportRepository : loads / saves ►
+
+' ==============================================================================
+'  Constraints
+' ==============================================================================
+
+note right of DisasterReport
+  Valid state transitions:
+  - approve() : SUBMITTED -> VISIBLE
+  - reject()  : SUBMITTED -> REJECTED
+  - close()   : VISIBLE   -> CLOSED
+
+  Status must only be changed using these 
+  methods to protect data integrity.
+
+end note
+
+
+@enduml
