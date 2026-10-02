@@ -1,0 +1,144 @@
+## @file generate-puml-diagrams.yaml
+## @brief Automated PlantUML diagram rendering and repository synchronization workflow.
+## @author Vlado Sruk
+## @date Created: March 2023 | Revision: 3.1 (2026)
+## @version 3.1
+## @license SPDX-License-Identifier: MIT
+## @copyright Copyright (c) 2023-2026 Vlado Sruk. Licensed under the MIT License.
+##
+## @note Workflow architecture and logic designed by the author.
+##       Doxygen-compatible code comments and annotations generated with AI assistance (Gemini).
+## @details This GitHub Actions workflow automates compiling PlantUML source files (.puml)
+##          into SVG vector assets whenever PUML files are modified or when manually dispatched.
+##          Build dependencies (Graphviz, PlantUML JAR) are restored from cache (since v2).
+##          Diagrams are validated with strict error checking, the source folder structure is
+##          mirrored in the output, and updated SVGs are committed back to the main branch.
+
+name: Generate PlantUML diagrams
+
+# ==============================================================================
+# Triggers
+# ==============================================================================
+## @section triggers Triggers
+## Workflow runs on direct pushes targeting diagram sources or via manual dispatch.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/puml/**/*.puml"
+      - ".github/workflows/generate-puml-diagrams.yaml"
+  workflow_dispatch:
+
+# ==============================================================================
+# Permissions & Concurrency
+# ==============================================================================
+## @section permissions Permissions
+## Write permission is required to push generated SVG assets back to the repo.
+permissions:
+  contents: write
+
+## @section concurrency Concurrency
+## Ensures sequential execution per branch ref to avoid git push collisions.
+concurrency:
+  group: plantuml-${{ github.ref }}
+  cancel-in-progress: false
+
+# ==============================================================================
+# Jobs
+# ==============================================================================
+jobs:
+  ## @brief Compiles PUML sources to SVG format and commits diffs.
+  generate-svg:
+    name: Build and Commit Diagrams
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Publish only from main, even when started manually via workflow_dispatch.
+    if: github.ref == 'refs/heads/main'
+
+    env:
+      PLANTUML_VERSION: "1.2025.4"
+      # Optional integrity check: paste the SHA-256 of plantuml-<version>.jar here.
+      # When empty, the checksum verification is skipped.
+      PLANTUML_SHA256: ""
+
+    steps:
+      # Step 1: Check out the repository source tree
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # Step 2: Pin the Java runtime so builds do not change with runner image updates
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # Step 3: Cache Graphviz (dot) apt package for fast runner setup
+      # TODO: pin this third-party action to a full commit SHA (keep the version in a comment).
+      - name: Cache Graphviz (apt)
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: graphviz
+          version: 1.0
+
+      # Step 4: Register Graphviz plugin configuration
+      - name: Register Graphviz plugins
+        run: sudo dot -c
+
+      # Step 5: Restore cached PlantUML binary based on pinned version
+      - name: Cache PlantUML jar
+        id: jar-cache
+        uses: actions/cache@v5
+        with:
+          path: plantuml.jar
+          key: plantuml-${{ runner.os }}-${{ env.PLANTUML_VERSION }}
+
+      # Step 6: Download PlantUML JAR if not retrieved from cache
+      - name: Download PlantUML
+        if: steps.jar-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL --retry 3 --retry-delay 2 -o plantuml.jar \
+            "https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/plantuml-${PLANTUML_VERSION}.jar"
+
+          # Verify integrity when a checksum is configured
+          if [ -n "${PLANTUML_SHA256}" ]; then
+            echo "${PLANTUML_SHA256}  plantuml.jar" | sha256sum -c -
+          fi
+
+      # Step 7: Render every .puml file to SVG, mirroring the docs/puml folder structure
+      # so files with the same name in different subfolders do not overwrite each other.
+      - name: Generate SVG diagrams
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$PWD/docs/assets/diagrams"
+          rm -rf "$out"
+          mkdir -p "$out"
+
+          find docs/puml -name '*.puml' -print0 | while IFS= read -r -d '' file; do
+            rel="${file#docs/puml/}"
+            dest="$out/$(dirname "$rel")"
+            mkdir -p "$dest"
+            java -jar plantuml.jar -tsvg -failonerror -o "$dest" "$file"
+          done
+
+      # Step 8: Commit and push changes if updated SVGs are detected
+      - name: Commit generated diagrams
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A docs/assets/diagrams
+
+          # Check for staged changes before creating a commit
+          if git diff --cached --quiet; then
+            echo "No diagram changes detected. Skipping commit."
+          else
+            git commit -m "docs: regenerate PlantUML diagrams"
+            git pull --rebase
+            git push
+          fi
