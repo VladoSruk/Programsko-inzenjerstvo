@@ -1,79 +1,53 @@
-# Programsko inženjerstvo
+# Programsko inženjerstvo — FER-UNIZG
 
-> Ime projekta u naslovu ima cilj opisati namjenu projekta te pomoći u podizanju početnog interesa za projekt prezentirajući osnovnu svrhu projekta.
-> Isključivo ovisi o Vama!
-> 
-> Naravno, nijedan predložak nije idealan za sve projekte jer su potrebe i ciljevi različiti. Ne bojte se naglasiti Vaš cilj u ovoj početnoj stranici projekta, podržat ćemo ga bez obzira usredotočili se Vi više na tenologiju ili marketing.
-> 
-> Zašto ovaj dokument? Samo manji dio timova je do sada propoznao potrebu (a i meni je lakše pratiti Vaš rad).  
+Dobro došli u središnji repozitorij kolegija **Programsko inženjerstvo** na Fakultetu elektrotehnike i računarstva Sveučilišta u Zagrebu.
 
-# Opis projekta
-Ovaj projekt je reultat timskog rada u sklopu projeknog zadatka kolegija [Programsko inženjerstvo](https://www.fer.unizg.hr/predmet/proinz) na Fakultetu elektrotehnike i računarstva Sveučilišta u Zagrebu. 
+**Važna napomena:** Ovaj `README.md` **nije** predložak za studentske projekte. Kao polazište za README vlastitog projekta koristite [`README_PREDLOZAK.md`](README_PREDLOZAK.md). Potpune upute za projektnu dokumentaciju — opseg, zahtjeve, obrasce uporabe, arhitekturu, ispitivanje, postavljanje, zaključak i aktivnosti grupe — nalaze se u direktoriju [`docs/`](docs/Home.md). **Napomena:** Sva projektna dokumentacija vodi se isključivo unutar direktorija docs/ u obliku međusobno povezanih Markdown dokumenata.
 
-Kratko opisati cilj Vašeg projekta. Vaša motivacija?  (Napomena: odgovor nije »Zato što je to bio zadatak i nismo imali ideje za drugo.«). Koji problem rješavate?
-> Obzirom da je ovo zadani projekt navedite i što želite/jeste novo  naučili.
+## Svrha
 
-> Dobro izrađen opis omogućuje vam da pokažete svoj rad drugim programerima, kao i potencijalnim poslodavcima. Ne samo da prvi dojam na stranici opisa često razlikuje dobar projekt od lošeg projekta već i predstavlja dobru praksu koju morate savladati.
+Ovaj repozitorij sadrži službenu strukturu dokumentacije, predloške, primjere i smjernice za studentske projekte na kolegiju Programsko inženjerstvo na FER-u. Služi kao glavno mjesto za praćenje napretka i strukture projektnih zadataka te definira praktične standarde za jasnu dokumentaciju, organizirano upravljanje projektom i transparentnost tijekom razvoja.
 
-# Funkcijski zahtjevi
-> Navedite ključne zahtjeve Vašeg projekta.
+## Verzije i povijest
 
+Ovaj repozitorij primjenjuje semantičko verzioniranje (engl. Semantic Versioning). Trenutačna je verzija 3.0.  
+Predložak i pripadajuća struktura dokumentacije kontinuirano se razvijaju i unaprjeđuju od 2015. godine.
 
-# Tehnologije
+## Struktura repozitorija
 
-#Instalcija
-# Članovi tima 
-> Popis članova tima/linkovi/ glavni doprinos
->
+Repozitorij sadrži predloške dokumentacije, primjere i pomoćne materijale za projekte na kolegiju Programsko inženjerstvo.
 
-# Kontribucije
->Pravila ovise o organizaciji tima i su često izdvojena u CONTRIBUTING.md
+<a id="ai-usage"></a>
+## Uporaba umjetne inteligencije [![AI Usage: Disclosed](https://img.shields.io/badge/AI%20Usage-Disclosed-blue.svg)](https://www.fer.unizg.hr/_download/repository/Policy%20on%20the%20appropriate%20use%20of%20artificial%20intelligence%20at%20the%20faculty%20of%20electrical%20engineering%20and%20computing%5B1%5D.pdf)
 
+Ovaj projekt slijedi FER-ova [pravila o primjerenoj uporabi umjetne inteligencije](https://www.fer.unizg.hr/_download/repository/Policy%20on%20the%20appropriate%20use%20of%20artificial%20intelligence%20at%20the%20faculty%20of%20electrical%20engineering%20and%20computing%5B1%5D.pdf).
 
+**Transparentnost i korišteni alati:** Jezični model umjetne inteligencije Gemini (3.8 Flash) korišten je kao pomoć pri završnom uređivanju dokumentacije i predložaka repozitorija (`README.md` i direktorij `docs/`) te pri izradi i oblikovanju dokumentacije koda projekta.
 
-# 📝 Kodeks ponašanja [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
-Kao studenti sigurno ste upoznati s minimumom prihvatljivog ponašanja definiran u [KODEKS PONAŠANJA STUDENATA FAKULTETA ELEKTROTEHNIKE I RAČUNARSTVA SVEUČILIŠTA U ZAGREBU](https://www.fer.hr/_download/repository/Kodeks_ponasanja_studenata_FER-a_procisceni_tekst_2016%5B1%5D.pdf), te dodatnim naputcima za timski rad na predmetu [Programsko inženjerstvo](https://wwww.fer.hr).
-Očekujemo da ćete poštovati [etički kodeks IEEE-a](https://www.ieee.org/about/corporate/governance/p7-8.html) koji ima važnu obrazovnu funkciju sa svrhom postavljanja najviših standarda integriteta, odgovornog ponašanja i etičkog ponašanja u profesionalnim aktivnosti. Time profesionalna zajednica programskih inženjera definira opća načela koja definiranju  moralni karakter, donošenje važnih poslovnih odluka i uspostavljanje jasnih moralnih očekivanja za sve pripadnike zajenice.
+**Etika, sigurnost i provjera:** Radi točnosti i sigurnosti podataka, sva dokumentacija izrađena uz pomoć umjetne inteligencije neovisno je pregledana i provjerena prije objave. Provjereno je da sadržaj poštuje povjerljivost korisnika i da ne uvodi neprovjerene pristranosti.
 
-Kodeks ponašanja skup je provedivih pravila koja služe za jasnu komunikaciju očekivanja i zahtjeva za rad zajednice/tima. Njime se jasno definiraju obaveze, prava, neprihvatljiva ponašanja te  odgovarajuće posljedice (za razliku od etičkog kodeksa). U ovom repozitoriju dan je jedan od široko prihvačenih kodeks ponašanja za rad u zajednici otvorenog koda.
->### Poboljšajte funkcioniranje tima:
->* definirajte načina na koji će rad biti podijeljen među članovima grupe
->* dogovorite kako će grupa međusobno komunicirati.
->* ne gubite vrijeme na dogovore na koji će grupa rješavati sporove primjenite standarde!
->* implicitno podrazmijevamo da će svi članovi grupe slijediti kodeks ponašanja.
- 
->###  Prijava problema
->Najgore što se može dogoditi je da netko šuti kad postoje problemi. Postoji nekoliko stvari koje možete učiniti kako biste najbolje riješili sukobe i probleme:
->* Obratite mi se izravno [e-pošta](mailto:vlado.sruk@fer.hr) i  učinit ćemo sve što je u našoj moći da u punom povjerenju saznamo koje korake trebamo poduzeti kako bismo riješili problem.
->* Razgovarajte s vašim asistentom jer ima najbolji uvid u dinamiku tima. Zajedno ćete saznati kako riješiti sukob i kako izbjeći daljnje utjecanje u vašem radu.
->* Ako se osjećate ugodno neposredno razgovarajte o problemu. Manje incidente trebalo bi rješavati izravno. Odvojite vrijeme i privatno razgovarajte s pogođenim članom tima te vjerujte u iskrenost.
+**Usklađenost:** Uporaba Geminija usklađena je s etičkim pravilima projekta, a njegova je pomoć odgovarajuće navedena u dokumentacijskom procesu.
 
-# 📝 Licenca
-Važeča (1)
-[![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
+## Kodeks ponašanja
 
-Ovaj repozitorij sadrži otvoreni obrazovni sadržaji (eng. Open Educational Resources)  i licenciran je prema pravilima Creative Commons licencije koja omogućava da preuzmete djelo, podijelite ga s drugima uz 
-uvjet da navođenja autora, ne upotrebljavate ga u komercijalne svrhe te dijelite pod istim uvjetima [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License HR][cc-by-nc-sa].
->
-> ### Napomena:
->
-> Svi paketi distribuiraju se pod vlastitim licencama.
-> Svi upotrijebleni materijali  (slike, modeli, animacije, ...) distribuiraju se pod vlastitim licencama.
+Od studenata se očekuje pridržavanje minimalnih standarda prihvatljivog ponašanja definiranih **Kodeksom ponašanja studenata Fakulteta elektrotehnike i računarstva Sveučilišta u Zagrebu**. Također se očekuje pridržavanje [Etičkog kodeksa IEEE-a](https://www.ieee.org/about/corporate/governance/p7-8.html), koji postavlja visoke standarde integriteta, odgovornog i etičnog profesionalnog ponašanja.
 
-[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
+**Očekivanja od tima:**
 
-[cc-by-nc-sa]: https://creativecommons.org/licenses/by-nc/4.0/deed.hr 
-[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
-[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
+- jasno definirati kako će se rad raspodijeliti među članovima tima i kako će tim komunicirati;
+- primjenjivati dogovorena pravila i standarde pri rješavanju nesuglasica;
+- svi članovi tima dužni su pridržavati se kodeksa ponašanja.
 
-Orginal [![cc0-1.0][cc0-1.0-shield]][cc0-1.0]
->
->COPYING: All the content within this repository is dedicated to the public domain under the CC0 1.0 Universal (CC0 1.0) Public Domain Dedication.
->
-[![CC0-1.0][cc0-1.0-image]][cc0-1.0]
+## Licenca [![CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-[cc0-1.0]: https://creativecommons.org/licenses/by/1.0/deed.en
-[cc0-1.0-image]: https://licensebuttons.net/l/by/1.0/88x31.png
-[cc0-1.0-shield]: https://img.shields.io/badge/License-CC0--1.0-lightgrey.svg
+Copyright © 2026 Vlado Sruk
 
-### Reference na licenciranje repozitorija
+Dokumentacija i materijali u ovom repozitoriju licencirani su licencom **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)**. Djelo možete preuzimati, dijeliti i prilagođavati uz navođenje autora, bez komercijalne uporabe i uz objavu izvedenog djela pod istom licencom.
+
+Predložak dokumentacije razvijen je u okviru kolegija Programsko inženjerstvo na FER-u na temelju višegodišnjeg iskustva rada na studentskim projektima. Njegova je svrha isključivo obrazovna: studentima pružiti jasan, strukturiran i povezan okvir za dokumentiranje ključnih aspekata razvoja programskog sustava. Struktura je namjerno moderna i plitka, prilagođena Git/Markdown dokumentaciji i čitanju na ekranu, bez nepotrebno duboke hijerarhije poglavlja. Usklađen s vremenskim okvirom semestra i ciljevima kolegija, predložak je namjerno sažet na inženjerski minimum potreban za razumijevanje i praktičnu primjenu temeljnih principa struke. Stoga ne teži razini opsega i detalja koja se očekuje u dokumentaciji velikih industrijskih sustava.
+
+Predložak služi kao polazište, a ne ograničenje. Timovi ga mogu prilagoditi i proširiti u skladu sa specifičnostima domene, odabranim tehnologijama, složenošću rješenja i interesima članova tima. Svaka nadopuna pritom treba imati jasnu svrhu i doprinositi kvaliteti rješenja, arhitekture, dokumentacije ili verifikacije projekta, a ne pukom povećanju opsega. Obavezni zahtjevi, način rada i ostala pravila studentskog projekta definirani su na službenoj stranici [Projekt - Programsko inženjerstvo](https://www.fer.unizg.hr/predmet/proinz). Ova licenca se odnosi na predložak dokumentacije i pripadajuće nastavne sadržaje, a ne automatski na studentske projekte izrađene njegovom uporabom.
+
+## Citiranje
+
+Ako koristite ili prilagođavate ovaj repozitorij, citirajte ga prema datoteci [`citation.cff`](citation.cff). GitHubova naredba **Cite this repository** automatski čita tu datoteku.
