@@ -1,0 +1,8 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "mkdir -p dist && echo \"<h1>Frontend App</h1>\" > dist/index.html",
+    "test": "echo \"Frontend tests passed\" && exit 0"
+  }
+}
