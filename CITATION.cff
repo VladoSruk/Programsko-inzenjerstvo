@@ -1,0 +1,52 @@
+cff-version: 1.2.0
+message: >-
+  If you use this documentation template in academic work, teaching
+  materials, or software engineering projects, please cite it using
+  the metadata below.
+  Documentation structure adapted from the FER Software Engineering course 
+  template by Vlado Sruk, licensed under CC BY-NC-SA 4.0. The application 
+  and its content were created by the student team named above.
+title: "Software Engineering Project Documentation Template"
+type: software
+authors:
+  - family-names: "Sruk"
+    given-names: "Vlado"
+    orcid: "https://orcid.org/0000-0003-0411-3398"
+    affiliation: "University of Zagreb, Faculty of Electrical Engineering and Computing"
+version: "2.0.0"
+date-released: "2026-09-29"
+repository-code: "https://github.com/VladoSruk/Software-Engineering"
+url: "https://github.com/VladoSruk/Software-Engineering"
+license: "CC-BY-NC-SA-4.0"
+abstract: >-
+  An open educational resource providing a standardized documentation
+  structure for student software projects developed within the
+  Software Engineering course at the Faculty of Electrical Engineering
+  and Computing (FER), University of Zagreb. The template covers
+  project description, requirements, deployment, installation,
+  technology selection rationale, licensing, AI usage disclosure,
+  teamwork reporting, and project governance.
+keywords:
+  - "software engineering"
+  - "project documentation"
+  - "README template"
+  - "GitHub"
+  - "software architecture"
+  - "requirements engineering"
+  - "project management"
+  - "software testing"
+  - "educational resource"
+  - "open educational resources"
+  - "AI usage policy"
+preferred-citation:
+  type: generic
+  authors:
+    - family-names: "Sruk"
+      given-names: "Vlado"
+      orcid: "https://orcid.org/0000-0003-0411-3398"
+  title: "Software Engineering Project Documentation Template"
+  year: 2026
+  version: "2.0.0"
+  url: "https://github.com/VladoSruk/Software-Engineering"
+  institution:
+    name: "University of Zagreb, Faculty of Electrical Engineering and Computing"
