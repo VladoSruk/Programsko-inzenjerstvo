@@ -1,0 +1,16 @@
+@startuml
+left to right direction
+actor Citizen
+actor Visitor
+actor "Disaster Manager" as Coordinator
+rectangle "Crisis Guard" {
+  usecase "Submit disaster report" as UC_Report
+  usecase "View reports on map" as UC_Map
+  usecase "View available resources" as UC_Resources
+  usecase "Receive nearby alert" as UC_Alert
+}
+Citizen --> UC_Report
+Citizen --> UC_Alert
+Visitor --> UC_Map
+Coordinator --> UC_Resources
+@enduml
