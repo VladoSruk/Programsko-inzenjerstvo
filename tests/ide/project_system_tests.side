@@ -1,0 +1,8 @@
+{
+  "id": "starter-id",
+  "version": "2.0",
+  "name": "SystemTestSuite",
+  "url": "http://localhost:80",
+  "tests": [],
+  "suites": []
+}
