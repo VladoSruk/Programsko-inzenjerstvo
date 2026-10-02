@@ -33,7 +33,6 @@
 ' ==============================================================================
 
 @startuml
-title  
 
 skinparam defaultFontName Arial
 skinparam node {

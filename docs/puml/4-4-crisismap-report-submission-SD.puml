@@ -28,7 +28,6 @@
 ' ==============================================================================
 
 @startuml
-title 
 
 skinparam maxMessageSize 150
 skinparam shadowing false

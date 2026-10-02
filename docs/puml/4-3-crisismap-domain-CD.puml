@@ -39,8 +39,6 @@
 ' ==============================================================================
 @startuml
 
-title 
-
 skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam packageStyle rectangle
