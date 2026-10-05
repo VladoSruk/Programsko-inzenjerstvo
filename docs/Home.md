@@ -24,7 +24,7 @@ Za projekt na temu CrisisMap sažet pregled može navesti građane kojima trebaj
 
 ## Članovi tima i uloge
 
-Ažurirani popis članova, njihovih GitHub profila i glavnih uloga ili doprinosa nalazi se u [README-u repozitoriju](../README_PREDLOZAK.md#team-members)..
+Ažurirani popis članova, njihovih GitHub profila i glavnih uloga ili doprinosa nalazi se u [README-u repozitoriju](../README_PREDLOZAK.md#team-members).
 
 ## Kazalo dokumentacije
 
@@ -43,10 +43,10 @@ Ažurirani popis članova, njihovih GitHub profila i glavnih uloga ili doprinosa
 
 | Kontrolna točka | Demonstracija | Video |
 | --- | --- | --- |
-| 7. tjedan — prvi pregled | [Poveznica na demonstraciju ili inačicu projekta] | [Poveznica na video Demo 1, ako je snimljen] |
-| 14. tjedan — završni pregled | [Poveznica na završnu demonstraciju ili inačicu projekta] | [Poveznica na video završne demonstracije, ako je snimljen] |
+| Iteracija 1 | [Poveznica na demonstraciju ili inačicu projekta] | [Poveznica na video Demo 1, ako je snimljen] |
+| Završni pregled | [Poveznica na završnu inačicu projekta] | [Poveznica na video završne demonstracije, ako je snimljen] |
 
-Dokumentacija se ažurira kako se aplikacija razvija; samo su 7. i 14. tjedan formalne kontrolne točke.
+Dokumentacija se kontinuirano ažurira kako se aplikacija razvija.
 
 ## Organizacija projekta i razvojni proces
 
@@ -64,7 +64,7 @@ Navedite pristup koji tim stvarno koristi. Tim koji razvija CrisisMap može orga
 
 ## Pravila dokumentacije
 
-Dokumentacija se sastoji od međusobno povezanih Markdown stranica. Obavezni UML dijagrami izrađuju se u PlantUML-u, uz PlantUML izvor i čitljivu sliku u dokumentaciji. Primjeri u ovom predlošku kolegija pokazuju kako nešto dokumentirati; nisu rezultati studentskog projekta.
+Dokumentacija se sastoji od međusobno povezanih Markdown stranica. Obavezni UML dijagrami izrađuju se u PlantUML-u, uz PlantUML izvor u dokumentaciji sačuvajte i čitljivu sliku. Primjeri u ovom predlošku kolegija pokazuju kako nešto dokumentirati; nisu dio rezultata studentskog projekta.
 
 <details>
 <summary><strong>Izvori dijagrama i nastavni primjeri</strong></summary>
@@ -118,7 +118,7 @@ Stranice i artefakti koji nisu navedeni iznad izrađeni su bez pomoći generativ
 <!-- UPUTA: Zabilježite stvarne ispravke ili napišite „Nisu utvrđene”. Općenita tvrdnja poput „sav tekst je pregledan” nije dokaz; dokaz su prethodne tablice. Tim mora moći objasniti svaku rečenicu koju objavi. -->
 
 <details>
-<summary><strong>Nastavni primjer: kako izgleda zapis usmjeren na dokumentaciju</strong></summary>
+<summary><strong>Primjer zapisa uporabe umjetne inteligencije</strong></summary>
 
 **Primjer — CrisisMap:**
 

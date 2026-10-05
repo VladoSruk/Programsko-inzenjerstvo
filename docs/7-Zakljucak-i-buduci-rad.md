@@ -8,7 +8,7 @@
 
 ## 7.2 Izazovi i naučene lekcije
 
-[Opišite jedan ili dva značajna tehnička ili organizacijska izazova. Objasnite što se dogodilo, kako je tim reagirao i što je iz toga naučio. Navedite znanja ili vještine koje bi timu pomogle da problem ranije prepozna ili riješi.ˇ Navedite što biste u sličnom projektu sljedeći put napravili drugačije i zašto.]
+[Opišite jedan ili dva značajna tehnička ili organizacijska izazova. Objasnite što se dogodilo, kako je tim reagirao i što je iz toga naučio. Navedite znanja ili vještine koje bi timu pomogle da problem ranije prepozna ili riješi. Navedite što biste u sličnom projektu sljedeći put napravili drugačije i zašto.]
 
 <details>
 <summary><strong>Primjer: obrada lokacije pri prijavi događaja</strong></summary>

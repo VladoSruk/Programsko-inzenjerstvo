@@ -51,12 +51,12 @@ Riječ je o dvjema različitim potrebama, a ne o dvjema izmišljenim biografijam
 **Vanjske ovisnosti:** [Navedite nužne vanjske usluge, API-je, baze podataka ili izvore informacija bez kojih sustav ne može funkcionirati (npr. Google Maps, platni pristupnici, vanjski pružatelj identiteta (OAuth)).]
 
 <details>
-<summary><strong>Definiranje početne granice projekta</strong></summary>
+<summary><strong>Primjer početne granice projekta</strong></summary>
 
 **Primjer — CrisisMap:**  
 **Uključeno:** Podnošenje prijave kriznog događaja s lokacijom i pregled prijava na karti.  
 **Isključeno:** Automatsko angažiranje hitnih službi; prikaz prijave ne odobrava niti pokreće službenu intervenciju.  
-**Vanjska ovisnost:** Pružatelj kartografske usluge omogućuje prikaz karte; aplikacija ostaje odgovorna za vlastite podatke o prijavama.
+**Vanjska ovisnost:** Pružatelj kartografskih usluga omogućuje prikaz karte; aplikacija ostaje odgovorna za vlastite podatke o prijavama.
 
 Ovo je konkretna granica jer razdvaja prikaz informacija od službenog odgovora hitnih službi i određuje koji sustav osigurava kartu. Izuzeće i ovisnost dio su **nastavnog scenarija**, a ne tvrdnja o tome što objavljena aplikacija stvarno implementira; te činjenice određuju odobreni opseg i stvarna aplikacija tima.
 
