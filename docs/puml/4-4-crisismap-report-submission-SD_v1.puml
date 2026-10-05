@@ -1,0 +1,100 @@
+' ==============================================================================
+' 4-4-crisismap-report-submission-SD1.puml
+'
+' Purpose:      Shows how a citizen submits a crisis report: location resolution
+'               in the web client (manual selection if device location is
+'               denied), then validation and storage on the server with
+'               outcomes 201, 400 and 500.
+' Author:       Vlado Sruk, Software Engineering course
+' AI:           The diagram was designed by the author. AI assisted with
+'               revision and comments; the author reviewed them and is
+'               responsible for the final content.
+' Traceability: HTTP statuses, interactions and branches should stay consistent
+'               with client and server behavior. Operation names are conceptual
+'               and need not match the implementation exactly.
+'
+' Diagram level: Conceptual Interaction Design
+' Diagram type:  Sequence Diagram
+' Version:       1.3
+' ==============================================================================
+
+@startuml
+title Crisis report submission
+
+skinparam maxMessageSize 150
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+skinparam ArrowColor #212529
+
+skinparam sequence {
+    ParticipantBackgroundColor #E7F1FF
+    ParticipantBorderColor #0D6EFD
+    ActorBackgroundColor #F8F9FA
+    ActorBorderColor #212529
+    LifeLineBorderColor #212529
+}
+
+autonumber
+
+' ==============================================================================
+' Participants (stereotyped)
+' ==============================================================================
+actor Citizen as User
+participant WebClient as Web <<UI>>
+participant BrowserGeoAPI as Geo <<External>>
+participant ReportAPI as API <<API>>
+participant ReportService as Service <<Application>>
+database ReportStore as Store <<Persistence>>
+
+' ==============================================================================
+' Phase 1: location resolution
+' ==============================================================================
+User -> Web++ : open report form
+
+alt device location requested
+  User -> Web : use current location
+  Web -> Geo++ : getCurrentPosition()
+
+  alt permission granted
+    Geo --> Web : coordinates
+    Web --> User : show selected location
+  else permission denied
+    Geo --> Web-- : permission error
+    Web --> User : offer manual selection
+    User -> Web : select location on map
+  end
+
+else manual location chosen
+  User -> Web : select location on map
+end
+
+' ==============================================================================
+' Phase 2: submission, validation and storage
+' ==============================================================================
+User -> Web : enter details & submit
+Web -> API++ : POST /reports (details, coords)
+API -> Service++ : validateAndSubmit()
+
+alt input or location invalid
+  Service --> API : ValidationException
+  API --> Web : 400 Bad Request
+  Web --> User : show corrections
+
+else report valid
+  Service -> Store++ : save(report)
+
+  alt save succeeds
+    Store --> Service : report ID
+    Service --> API : success
+    API --> Web : 201 Created
+    Web --> User : show confirmation
+
+  else storage fails
+    Store --> Service-- : DataException
+    Service --> API-- : SystemException
+    API --> Web-- : 500 Internal Server Error
+    Web --> User-- : show failure & retry option
+  end
+end
+@enduml

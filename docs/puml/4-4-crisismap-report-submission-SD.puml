@@ -1,100 +1,98 @@
 ' ==============================================================================
-' @file 4-4-crisismap-submit-report-SD.puml
-' @brief Conceptual Sequence diagram for disaster report submission and location validation.
+' 4-4-crisismap-report-submission-SD.puml
 '
-' @details
-' This artifact models the dynamic interaction of a citizen submitting a new 
-' disaster report. It captures the frontend client logic for location permissions 
-' and the backend API orchestration for validation and persistence.
-'
-' System Requirements Addressed:
-' - Graceful degradation of UI features (handling blocked location APIs).
-' - Separation of concerns across API routing, business logic, and storage.
-' - Explicit REST API contracts (400, 201, 500) for error and success states.
-'
-' Author(s): Vlado Sruk
-' Context: Software Engineering Course
-'
-' AI Usage Disclosure:
-' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
-' reviewed by the author, who is responsible for the final content.
-'
-' Traceability Note:
-' The HTTP statuses, method calls, and conditional branches defined herein must 
-' map directly to the finalized frontend component logic and backend controllers. 
+' Svrha:    Prikazuje podnošenje prijave kriznog događaja: određivanje lokacije
+'           u web-klijentu (uz ručni odabir ako je pristup lokaciji odbijen) te
+'           validaciju i pohranu na poslužitelju s ishodima 201, 400 i 500.
+' Autor:    Vlado Sruk, kolegij Programsko inženjerstvo
+' AI:       Dijagram je izradio autor. AI je pomogao u reviziji i komentarima;
+'           autor ih je pregledao i odgovara za konačni sadržaj.
+' Praćenje: HTTP statusi, interakcije i grane trebaju ostati usklađeni s
+'           ponašanjem klijenta i poslužitelja. Nazivi operacija su
+'           konceptualni i ne moraju se točno podudarati s implementacijom.
 '
 ' Diagram level: Conceptual Interaction Design
 ' Diagram type:  Sequence Diagram
+' Version:       1.3
 ' ==============================================================================
 
 @startuml
+title Podnošenje prijave kriznog događaja
 
 skinparam maxMessageSize 150
 skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam sequenceMessageAlign center
+skinparam ArrowColor #212529
+
+skinparam sequence {
+    ParticipantBackgroundColor #E7F1FF
+    ParticipantBorderColor #0D6EFD
+    ActorBackgroundColor #F8F9FA
+    ActorBorderColor #212529
+    LifeLineBorderColor #212529
+}
 
 autonumber
 
 ' ==============================================================================
-' Lifelines (Stereotyped)
+' Sudionici (sa stereotipima)
 ' ==============================================================================
-actor Citizen as User
-participant WebClient as Web <<UI>>
-participant BrowserGeoAPI as Geo <<External>>
-participant ReportAPI as API <<API>>
-participant ReportService as Service <<Application>>
-database ReportStore as Store <<Persistence>>
+actor "Građanin" as User
+participant "Web-klijent" as Web <<UI>>
+participant "API geolokacije preglednika" as Geo <<External>>
+participant "API za prijave" as API <<API>>
+participant "Usluga za prijave" as Service <<Application>>
+database "Spremište prijava" as Store <<Persistence>>
 
 ' ==============================================================================
-' Phase 1: Location Resolution
+' Faza 1: određivanje lokacije
 ' ==============================================================================
-User -> Web++ : open report form
+User -> Web++ : otvori obrazac za prijavu
 
-alt device location requested
-  User -> Web : use current location
+alt zatražena lokacija uređaja
+  User -> Web : koristi trenutačnu lokaciju
   Web -> Geo++ : getCurrentPosition()
-  
-  alt permission granted
-    Geo --> Web : coordinates
-    Web --> User : show selected location
-  else permission denied
-    Geo --> Web-- : permission error
-    Web --> User : offer manual selection
-    User -> Web : select location on map
+
+  alt pristup lokaciji dopušten
+    Geo --> Web : koordinate
+    Web --> User : prikaži odabranu lokaciju
+  else pristup lokaciji odbijen
+    Geo --> Web-- : pogreška dopuštenja
+    Web --> User : ponudi ručni odabir
+    User -> Web : odaberi lokaciju na karti
   end
-  
-else manual location chosen
-  User -> Web : select location on map
+
+else lokacija odabrana ručno
+  User -> Web : odaberi lokaciju na karti
 end
 
 ' ==============================================================================
-' Phase 2: Submission, Validation & Storage
+' Faza 2: podnošenje, validacija i pohrana
 ' ==============================================================================
-User -> Web : enter details & submit
-Web -> API++ : POST /reports (details, coords)
+User -> Web : unesi podatke i podnesi prijavu
+Web -> API++ : POST /reports (podaci, koordinate)
 API -> Service++ : validateAndSubmit()
 
-alt input or location invalid
+alt podaci ili lokacija nisu valjani
   Service --> API : ValidationException
   API --> Web : 400 Bad Request
-  Web --> User : show corrections
-  
-else report valid
+  Web --> User : prikaži potrebne ispravke
+
+else prijava je valjana
   Service -> Store++ : save(report)
-  
-  alt save succeeds
-    Store --> Service : report ID
-    Service --> API : success
+
+  alt pohrana je uspjela
+    Store --> Service : ID prijave
+    Service --> API : uspjeh
     API --> Web : 201 Created
-    Web --> User : show confirmation
-    
-  else storage fails
+    Web --> User : prikaži potvrdu
+
+  else pohrana nije uspjela
     Store --> Service-- : DataException
     Service --> API-- : SystemException
     API --> Web-- : 500 Internal Server Error
-    Web --> User-- : show failure & retry option
+    Web --> User-- : prikaži neuspjeh i mogućnost ponovnog pokušaja
   end
 end
-
 @enduml

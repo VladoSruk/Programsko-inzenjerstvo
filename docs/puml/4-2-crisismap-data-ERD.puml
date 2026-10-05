@@ -1,53 +1,28 @@
 ' ==============================================================================
-' @file 4-2-crisismap-data-ERD.puml
-' @brief Initial logical data model for the Crisis Map disaster management system.
+' 4-2-crisismap-data-ERD.puml 
 '
-' @details
-' This artifact defines the principal persistent entities required to support 
-' the foundational architecture of the Crisis Map platform. The model captures 
-' core domain relationships encompassing system users, disaster reports, 
-' categorizations, multimedia evidence, resource allocation, and spatial alert 
-' subscriptions, abstracting away the physical database implementation.
-'
-' Architectural Scope & Rationale:
-' This model is explicitly scoped to the logical architecture tier. It focuses 
-' on capturing stable domain concepts, independent identities (Primary Keys), 
-' representative domain attributes, and precise relationship cardinalities. 
-'
-' System Requirements Addressed:
-' This model establishes the structural integrity of the application by defining:
-' - The minimal viable data entities the system must persist.
-' - The entity bounded contexts and their independent life cycles.
-' - The relational mapping between disaster events, responders, and resources.
-' - The cardinality constraints governing data integrity and application logic.
-'
-' Author(s): Vlado Sruk
-' Context: Software Engineering Course
-'
-' AI Usage Disclosure:
-' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
-' reviewed by the author, who is responsible for the final content.
-'
-' Traceability Note:
-' The entities, attributes, and relationships defined herein must strictly map 
-' to the finalized software implementation. Any architectural deviations introduced 
-' during development must be retroactively updated in this model to maintain 
-' evidence chain completeness from requirements to code.
+' Svrha:    Prikazuje trajne entitete sustava CrisisMap (korisnik, prijava,
+'           kategorija, fotografija, resurs, raspodjela, pretplata na
+'           obavijesti), njihove ključeve, reprezentativne atribute i
+'           kardinalnosti. Fizička implementacija baze nije obuhvaćena.
+' Autor:    Vlado Sruk, kolegij Programsko inženjerstvo
+' AI:       Dijagram je izradio autor. AI je pomogao u reviziji i komentarima;
+'           autor ih je pregledao i odgovara za konačni sadržaj.
+' Praćenje: Entiteti, atributi i veze trebaju ostati usklađeni sa shemom baze;
+'           pri promjeni sheme ažurirati model.
 '
 ' Diagram level: Logical data model
-' Diagram type:  Entity-Relationship Diagram (ERD)
+' Diagram type:  Entity-Relationship Diagram (ERD), crow's foot
+' Version:       1.3
 ' ==============================================================================
 
 @startuml
-
-' ==============================================================================
-' Diagram Layout and Style
-' ==============================================================================
-
+title Sustav CrisisMap – logički podatkovni model
 left to right direction
 
 skinparam shadowing false
 skinparam defaultFontName Arial
+skinparam ArrowColor #212529
 
 skinparam entity {
     BackgroundColor #E7F1FF
@@ -55,19 +30,11 @@ skinparam entity {
     FontColor #212529
 }
 
-skinparam note {
-    BackgroundColor #F8F9FA
-    BorderColor #212529
-    FontColor #212529
-}
-
-skinparam ArrowColor #212529
-
 ' ==============================================================================
-' Core User Entity
+' Korisnik
 ' ==============================================================================
 
-entity "User" as User {
+entity "Korisnik" as User {
     * user_id : ID <<PK>>
     --
     display_name : text
@@ -75,10 +42,10 @@ entity "User" as User {
 }
 
 ' ==============================================================================
-' Disaster Reporting Entities
+' Prijave kriznih događaja
 ' ==============================================================================
 
-entity "Disaster Report" as Report {
+entity "Prijava kriznog događaja" as Report {
     * report_id : ID <<PK>>
     --
     * user_id : ID <<FK>>
@@ -91,13 +58,13 @@ entity "Disaster Report" as Report {
     submitted_at : datetime
 }
 
-entity "Disaster Category" as Category {
+entity "Kategorija kriznog događaja" as Category {
     * category_id : ID <<PK>>
     --
     name : text
 }
 
-entity "Report Photo" as Photo {
+entity "Fotografija prijave" as Photo {
     * photo_id : ID <<PK>>
     --
     * report_id : ID <<FK>>
@@ -105,10 +72,10 @@ entity "Report Photo" as Photo {
 }
 
 ' ==============================================================================
-' Resource Entities
+' Resursi
 ' ==============================================================================
 
-entity "Resource" as Resource {
+entity "Resurs" as Resource {
     * resource_id : ID <<PK>>
     --
     * resource_type_id : ID <<FK>>
@@ -117,13 +84,16 @@ entity "Resource" as Resource {
     status : enum
 }
 
-entity "Resource Type" as ResourceType {
+entity "Vrsta resursa" as ResourceType {
     * resource_type_id : ID <<PK>>
     --
     name : text
 }
 
-entity "Resource Allocation" as Allocation {
+' Raspodjela je asocijativni entitet između prijave i resursa: jedna prijava
+' može zahtijevati više resursa, a isti se resurs može dodijeliti više puta.
+' Količina se bilježi na samoj vezi.
+entity "Raspodjela resursa" as Allocation {
     * allocation_id : ID <<PK>>
     --
     * report_id : ID <<FK>>
@@ -133,10 +103,10 @@ entity "Resource Allocation" as Allocation {
 }
 
 ' ==============================================================================
-' Alert / Notification Preference Entity
+' Pretplata na obavijesti
 ' ==============================================================================
 
-entity "Alert Subscription" as Subscription {
+entity "Pretplata na obavijesti" as Subscription {
     * subscription_id : ID <<PK>>
     --
     * user_id : ID <<FK>>
@@ -147,24 +117,17 @@ entity "Alert Subscription" as Subscription {
 }
 
 ' ==============================================================================
-' Entity Relationships
+' Veze između entiteta
 ' ==============================================================================
 
-User "1" ||--o{ "0..*" Report : submits ►
-Category "1" ||--o{ "0..*" Report : classifies ►
-Report "1" ||--o{ "0..*" Photo : has ►
+User ||--o{ Report : podnosi ►
+Category ||--o{ Report : kategorizira ►
+Report ||--o{ Photo : ima ►
 
-ResourceType "1" ||--o{ "0..*" Resource : groups ►
+ResourceType ||--o{ Resource : grupira ►
 
-Report "1" ||--o{ "0..*" Allocation : requires ►
-Resource "1" ||--o{ "0..*" Allocation : deployed as ►
+Report ||--o{ Allocation : zahtijeva ►
+Resource ||--o{ Allocation : dodjeljuje se ►
 
-User "1" ||--o{ "0..*" Subscription : configures ►
-
-' ==============================================================================
-' Design Guidance
-' ==============================================================================
-
-
-
+User ||--o{ Subscription : postavlja ►
 @enduml

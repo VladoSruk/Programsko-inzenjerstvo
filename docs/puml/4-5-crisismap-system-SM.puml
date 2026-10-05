@@ -1,0 +1,87 @@
+' ==============================================================================
+' 4-5-crisismap-report-SM.puml
+'
+' Svrha:    Prikazuje dva paralelna životna ciklusa sustava CrisisMap (ortogonalne
+'           regije): način koordinacije kriznog događaja i dostupnost usluge.
+'           Prijelazi su uvjetovani varijablama stanja.
+' Autor:    Vlado Sruk, kolegij Programsko inženjerstvo / projektna dokumentacija
+' AI:       AI je pomogao u jezičnoj reviziji, komentarima i formatiranju
+'           zaglavlja; autor je sve provjerio i izmijenio te odgovara za
+'           konačnu logiku.
+' Praćenje: Stanja i prijelazi trebaju biti provjerljivi u implementaciji
+'           (npr. zastavice konfiguracije, aktivni događaji, health endpointi);
+'           pri odstupanju ažurirati model.
+'
+' Diagram level: System-Level Behavioral Design
+' Diagram type:  State Machine Diagram
+' Version:       1.3
+' ==============================================================================
+
+@startuml
+title Sustav CrisisMap – stanja sustava
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam ArrowColor #212529
+
+skinparam state {
+    BackgroundColor #E7F1FF
+    BorderColor #0D6EFD
+}
+
+' ==============================================================================
+' Globalni kontekst sustava i varijable stanja
+' ==============================================================================
+state "Rad sustava CrisisMap" as Operation {
+
+  Operation : aktivniPotvrđeniDogađaji : Integer = 0
+  Operation : neuspjeliUpitiKarte : Integer = 0
+
+  ' ----------------------------------------------------------------------------
+  ' Ortogonalna regija 1: poslovna domena
+  ' ----------------------------------------------------------------------------
+  state "Način koordinacije kriznog događaja" as Mode {
+    [*] --> Routine
+    state "Uobičajeno praćenje" as Routine
+    state "Pojačano praćenje" as Watch
+    state "Aktivni krizni događaj" as Active
+    state "Naknadne aktivnosti" as FollowUp
+
+    Routine --> Watch : koordinator podiže razinu upozorenja
+    Watch --> Routine : prijetnja odbačena
+
+    ' Ulazak u aktivni događaj štiti uvjet nad varijablom stanja.
+    Routine --> Active : krizni događaj potvrđen [aktivniPotvrđeniDogađaji > 0] / objavi obavijest
+    Watch --> Active : krizni događaj potvrđen [aktivniPotvrđeniDogađaji > 0] / objavi obavijest
+
+    ' Odgovor se ne može završiti dok postoji aktivni potvrđeni događaj.
+    Active --> FollowUp : odgovor završen [aktivniPotvrđeniDogađaji == 0]
+
+    FollowUp --> Active : novi potvrđeni krizni događaj [aktivniPotvrđeniDogađaji > 0]
+    FollowUp --> Routine : naknadne aktivnosti završene
+  }
+
+  --
+
+  ' ----------------------------------------------------------------------------
+  ' Ortogonalna regija 2: dostupnost infrastrukture
+  ' ----------------------------------------------------------------------------
+  state "Dostupnost usluge" as Availability {
+    [*] --> Online
+    state "Dostupna" as Online
+    state "Ograničena: karta nije dostupna" as Limited
+    state "Nedostupna: poslužiteljski sustav nije dostupan" as Unavailable
+
+    ' Prag tolerancije na pogreške: ograničeni način nastaje tek nakon
+    ' 3 neuspjela upita karte.
+    Online --> Limited : pružatelj karte nije dostupan [neuspjeliUpitiKarte >= 3]
+    Limited --> Online : pružatelj karte ponovno dostupan [neuspjeliUpitiKarte == 0]
+
+    Online --> Unavailable : poslužiteljski sustav nije dostupan
+    Limited --> Unavailable : poslužiteljski sustav nije dostupan
+
+    Unavailable --> Online : poslužiteljski sustav ponovno dostupan [neuspjeliUpitiKarte == 0]
+    Unavailable --> Limited : poslužiteljski sustav ponovno dostupan [neuspjeliUpitiKarte >= 3]
+  }
+}
+@enduml

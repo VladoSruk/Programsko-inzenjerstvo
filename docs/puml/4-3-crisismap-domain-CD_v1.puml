@@ -1,0 +1,116 @@
+' ==============================================================================
+' 4-3-crisismap-domain-CD.puml
+'
+' Svrha:    Prikazuje domenski model i aplikacijski servis za tijek prijave
+'           kriznog događaja: agregat DisasterReport, value object Location,
+'           servis ReportWorkflow i sučelje ReportRepository (trajnost je
+'           apstrahirana). Slojevi su razdvojeni na aplikacijski i domenski.
+' Autor:    Vlado Sruk, kolegij Programsko inženjerstvo
+' AI:       Dijagram je izradio autor. AI je pomogao u reviziji i komentarima;
+'           autor ih je pregledao i odgovara za konačni sadržaj.
+' Praćenje: Klase, metode i veze trebaju ostati usklađene s izvornim kodom;
+'           pri odstupanju ažurirati model.
+'
+' Diagram level: Structural / Domain Design
+' Diagram type:  Class Diagram
+' Version:       1.4
+' ==============================================================================
+
+@startuml
+title Sustav CrisisMap – domenski model prijave
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
+skinparam ArrowColor #212529
+
+skinparam class {
+    BackgroundColor #E7F1FF
+    BorderColor #0D6EFD
+}
+
+skinparam note {
+    BackgroundColor #F8F9FA
+    BorderColor #212529
+    FontColor #212529
+}
+
+' ==============================================================================
+' Aplikacijski sloj: orkestrira slučajeve korištenja i delegira domeni.
+' ==============================================================================
+package "Aplikacijski sloj" {
+
+  class ReportWorkflow <<Service>> {
+    +submit(location: Location, severity: Severity): DisasterReport
+    +approve(reportId: UUID): void
+    +reject(reportId: UUID, reason: String): void
+    +close(reportId: UUID): void
+  }
+
+}
+
+' ==============================================================================
+' Domenski sloj: sadrži poslovno stanje i pravila.
+' ==============================================================================
+package "Domenski sloj" {
+
+  class DisasterReport <<Entity>> <<AggregateRoot>> {
+    -id: UUID
+    -status: ReportStatus
+    -severity: Severity
+    +approve(): void
+    +reject(reason: String): void
+    +close(): void
+  }
+
+  class Location <<ValueObject>> {
+    +latitude: Decimal
+    +longitude: Decimal
+  }
+
+  enum ReportStatus <<Enum>> {
+    SUBMITTED
+    VISIBLE
+    REJECTED
+    CLOSED
+  }
+
+  enum Severity <<Enum>> {
+    LOW
+    MEDIUM
+    HIGH
+  }
+
+  interface ReportRepository <<Repository>> {
+    +findById(id: UUID): DisasterReport
+    +save(report: DisasterReport): void
+  }
+
+}
+
+' ==============================================================================
+' Veze i višestrukosti
+' ==============================================================================
+
+' Location je value object: životni ciklus mu je vezan uz prijavu (kompozicija).
+DisasterReport "1" *-- "1" Location : sadrži ►
+
+ReportWorkflow "1" --> "0..*" DisasterReport : stvara / mijenja ►
+ReportWorkflow "1" --> "1" ReportRepository : učitava / sprema ►
+
+' ==============================================================================
+' Ograničenja
+' ==============================================================================
+
+note right of DisasterReport
+  Dopušteni prijelazi stanja:
+  - approve() : SUBMITTED -> VISIBLE
+  - reject()  : SUBMITTED -> REJECTED
+  - close()   : VISIBLE   -> CLOSED
+
+  Status se smije mijenjati samo ovim
+  metodama radi očuvanja integriteta podataka.
+
+end note
+
+@enduml

@@ -1,57 +1,32 @@
-Code snippet
 ' ==============================================================================
-' @file 3-1-crisismap-use-cases.puml
-' @brief Core use case diagram for the Crisis Map disaster management system.
+' 3-1-crisismap-system-UC_v1.puml
 '
-' @details
-' This artifact defines the primary actors and their interactions with the 
-' Crisis Map platform. It captures the behavioral boundaries of the system, 
-' detailing how citizens, disaster managers, and automated systems trigger 
-' core business processes such as reporting disasters, managing resources, 
-' and broadcasting alerts.
-'
-' Architectural Scope & Rationale:
-' This model is explicitly scoped to the requirements and behavioral tier. 
-' It focuses on user goals and system boundaries rather than implementation 
-' specifics. Internal system logic, data storage, and UI workflows are 
-' deliberately deferred to subsequent structural and behavioral models.
-'
-' System Requirements Addressed:
-' This model establishes the functional baseline of the application by defining:
-' - The primary and secondary actors interacting with the system.
-' - The core functional requirements grouped by user goals.
-' - The system boundaries and inclusion/extension relationships.
-' - The privilege separation between standard users and system administrators.
-'
-' Author(s): Vlado Sruk
-' Context: Software Engineering Course
-'
-' AI Usage Disclosure:
-' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
-' reviewed by the author, who is responsible for the final content.
-'
-' Traceability Note:
-' The use cases defined herein must strictly map to the implemented features 
-' and functional testing suites. Any behavioral deviations introduced during 
-' development must be retroactively updated in this model to maintain evidence 
-' chain completeness from requirements to code.
+' Svrha:    Prikazuje tko i s kojim ciljem koristi sustav CrisisMap (građani,
+'           moderatori, koordinatori pomoći) te koje vanjske sustave sustav
+'           koristi. Interna logika, pohrana podataka i korisničko sučelje
+'           namjerno nisu obuhvaćeni (kasniji modeli).
+' Autor:    Vlado Sruk, kolegij Programsko inženjerstvo
+' AI:       Dijagram je izradio autor. AI je pomogao u reviziji i komentarima;
+'           autor ih je pregledao i odgovara za konačni sadržaj.
+' Zahtjevi: UC-01 do UC-10 (svaki slučaj uporabe ima ID za praćenje
+'           prema implementaciji i testovima)
 '
 ' Diagram level: System Requirements
 ' Diagram type:  Use Case Diagram
+' Version:       1.3
 ' ==============================================================================
 
 @startuml
-
+title Sustav CrisisMap – slučajevi uporabe
 left to right direction
 
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam packageStyle rectangle
+skinparam ArrowColor #212529
 
 skinparam actor {
     BackgroundColor #F8F9FA
     BorderColor #212529
-    ' External systems are visually distinct from human actors.
     BackgroundColor<<external system>> #FFF3CD
     BorderColor<<external system>> #856404
 }
@@ -59,110 +34,127 @@ skinparam actor {
 skinparam usecase {
     BackgroundColor #E7F1FF
     BorderColor #0D6EFD
-    ArrowColor #212529
 }
 
 ' ==============================================================================
-' Primary Actors
+' Primarni akteri
 ' ==============================================================================
 
-actor User as "Application User"
-actor Citizen as "Citizen\n(Registered)"
-actor Visitor as "Visitor\n(Anonymous)"
-actor Manager as "Disaster Manager"
+' Akteri su uloge, a ne stanja: nazivi ne sadrže "prijavljen" ni "anoniman".
+' Stanje prijave opisuje bilješka ispod aktera Posjetitelj.
+actor User as "Korisnik aplikacije"
+actor Citizen as "Građanin"
+actor Visitor as "Posjetitelj"
+actor Moderator as "Moderator"
+actor Manager as "Koordinator pomoći"
 
-' Citizen and Visitor are specialized user roles.
+' Sve uloge su specijalizacije korisnika aplikacije, pa im je pregled karte
+' dostupan bez dodatne veze.
 Citizen -|> User
-Visitor -|> User
+ User -|>  Visitor
+Moderator -|> User
+Manager -|> User
 
-' Layout-only relationships.
+' Samo za raspored na dijagramu.
 Manager -[hidden]down-> Citizen
+Moderator -[hidden]down-> Citizen
 Citizen -[hidden]down-> Visitor
+Visitor -[hidden]down->  User
+
+'note left of Visitor
+'  Posjetitelj nije prijavljen u sustav.
+'  Prijavom (UC-01) postaje Građanin.
+'  Ne može podnijeti prijavu događaja (UC-04).
+'  Ostale uloge pretpostavljaju prijavu.
+'end note
 
 ' ==============================================================================
-' Secondary - Supporting Actors
+' Sekundarni akteri (vanjski sustavi)
 ' ==============================================================================
 
-actor "OAuth / Identity Provider" as IdP <<external system>>
-actor "Map Service" as Maps <<external system>>
-actor "Notification Service" as Notifications <<external system>>
+actor "Pružatelj identiteta\n(OAuth)" as IdP <<external system>>
+actor "Pružatelj obavijesti" as Notifications <<external system>>
+actor "Pružatelj kartografske\nusluge" as Maps <<external system>>
 
 ' ==============================================================================
-' System Boundary
+' Granica sustava
 ' ==============================================================================
 
-rectangle "Crisis Map System" as CrisisMap {
+rectangle "Sustav CrisisMap" as CrisisMap {
 
-    ' Access
-    (Sign In / Authenticate) as UC_SignIn
+    ' Pristup
+    (UC-01\nPrijava u sustav) as UC_SignIn
 
-    ' Reports and map
-    (View Reports on Map) as UC_Map
-    (Filter Incident Layers) as UC_Filter
-    (Submit Disaster Report) as UC_Report
-    (Validate Report Data) as UC_ValidateReport
-    (Upload Photo Evidence) as UC_UploadPhoto
+    ' Prijave i karta
+    (UC-02\nPregled prijava na karti) as UC_Map
+    (UC-03\nFiltriranje prikaza događaja) as UC_Filter
+    (UC-04\nPodnošenje prijave\nkriznog događaja) as UC_Report
+    (UC-05\nProvjera podataka prijave) as UC_ValidateReport
+    (UC-06\nDodavanje fotografije) as UC_UploadPhoto
+    (UC-07\nModeriranje prijave\nkriznog događaja) as UC_Moderate
 
-    ' Resource coordination
-    (View Available Resources) as UC_Resources
-    (Allocate Relief Resources) as UC_Allocate
+    ' Koordinacija resursa
+    (UC-08\nPregled dostupnih resursa) as UC_Resources
+    (UC-09\nRaspodjela resursa pomoći) as UC_Allocate
 
-    ' Alerts
-    (Receive Proximity Alerts) as UC_Alert
+    ' Obavijesti
+    (UC-10\nPrimanje obavijesti o\ndogađajima u blizini) as UC_Alert
 }
 
 ' ==============================================================================
-' Actor-to-Use-Case Associations
+' Asocijacije aktera i slučajeva uporabe
 ' ==============================================================================
 
-' Common user capability
 User -- UC_Map
 
-' Anonymous visitor capability
+' Posjetitelj namjerno NEMA vezu s UC-04: podnošenje prijave događaja traži
+' prijavu u sustav jer prijava u ERD-u (4-2) ima obvezan user_id. Posjetitelj
+' može samo pregledavati kartu i prijaviti se.
 Visitor -- UC_SignIn
 
-' Registered citizen capabilities
+' Moderator i koordinator prijavljuju se istim postupkom. Uloga im se
+' dodjeljuje izvan ovog modela (administracija korisnika nije u opsegu).
+Moderator -- UC_SignIn
+Manager -- UC_SignIn
+
 Citizen -- UC_Report
 Citizen -- UC_Alert
 
-' Disaster manager capabilities
+Moderator -- UC_Moderate
+
 Manager -- UC_Resources
 Manager -- UC_Allocate
 
 ' ==============================================================================
-' UML Relationships
+' Veze između slučajeva uporabe
 ' ==============================================================================
 
-' Optional behavior extending a complete base use case.
-UC_Map <.. UC_Filter : <<extend>>\n[filter requested]
+' Neobavezno ponašanje koje proširuje potpuni osnovni slučaj.
+UC_Map <.. UC_Filter : <<extend>>\n[filtriranje zatraženo]
 
-UC_Report <.. UC_UploadPhoto : <<extend>>\n[photo provided]
+UC_Report <.. UC_UploadPhoto : <<extend>>\n[fotografija priložena]
 
-' Mandatory reused behavior performed during report submission.
+' Obvezno ponašanje koje se uvijek izvodi pri podnošenju prijave.
 UC_Report ..> UC_ValidateReport : <<include>>
 
-' Authentication is intentionally NOT modeled as <<include>> for protected
-' operations. A user may already be authenticated before starting them.
-' Treat authentication as a precondition unless sign-in is always executed
-' within the use case itself.
+' Prijava namjerno NIJE <<include>> zaštićenih slučajeva (UC-04, UC-07,
+' UC-08, UC-09, UC-10): korisnik je već prijavljen prije njihova početka.
+' Prijava je preduvjet, a <<include>> bi bio ispravan tek da se uvijek
+' izvodi unutar samog slučaja.
 
 ' ==============================================================================
-' Secondary Actor Interactions
+' Interakcije sa sekundarnim akterima
 ' ==============================================================================
 
-UC_SignIn -right- IdP
+UC_SignIn -- IdP
 
-' Map Service is deliberately shown in this educational diagram to expose an
-' important external dependency. In a stricter goal-oriented model it may be
-' shown only in architecture or deployment views.
+' Kartografska usluga je prikazana jer je ključna vanjska ovisnost. U strožem
+' modelu usmjerenom na ciljeve pojavila bi se tek u arhitekturnom prikazu.
 UC_Map -right- Maps
 
-' Keep this actor only if external notification delivery is part of the
-' approved scope and implementation.
 UC_Alert -right- Notifications
 
-' Layout-only ordering for the external-system column.
-IdP -[hidden]down-> Maps
+' Samo za raspored vanjskih sustava u jednom stupcu.
+Maps -[hidden]left-> IdP 
 Maps -[hidden]down-> Notifications
-
 @enduml

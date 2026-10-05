@@ -1,128 +1,154 @@
 ' ==============================================================================
-' @file 4-3-crisismap-domain-model.puml
-' @brief Structural class diagram defining the domain model and application services.
+' 4-3-crisismap-domain-CD.puml
 '
-' @details
-' This artifact models the core business logic, entity structures, and application 
-' services for the Crisis Map disaster reporting flow. It enforces strict 
-' architectural boundaries by categorizing classes into structural abstraction 
-' levels (Application Layer vs. Domain Layer).
-'
-' Architectural Scope & Rationale:
-' This model is explicitly scoped to the structural design and domain tier. 
-' It utilizes Domain-Driven Design (DDD) concepts by distinguishing between 
-' Aggregate Roots (DisasterReport), Value Objects (Location), and Application 
-' Services (ReportWorkflow). The persistence mechanism is abstracted via the 
-' ReportRepository interface to maintain domain purity.
-'
-' System Requirements Addressed:
-' This model dictates the software implementation by defining:
-' - The encapsulation of domain state and controlled state transitions.
-' - The separation of Application workflows from Domain logic.
-' - The exact multiplicities and lifecycle dependencies between classes.
-'
-' Author(s): Vlado Sruk
-' Context: Software Engineering Course
-'
-' AI Usage Disclosure:
-' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
-' reviewed by the author, who is responsible for the final content.
-'
-' Traceability Note:
-' The structural properties, methods, and relationships defined herein must 
-' strictly map to the finalized object-oriented source code. Any deviations 
-' introduced during development must be retroactively updated in this model 
-' to maintain evidence chain completeness.
+' Svrha:    Prikazuje domenski model i aplikacijski servis za tijek prijave
+'           kriznog događaja: agregat DisasterReport (s dijelovima Location i
+'           Photo), servis ReportService i sučelje ReportRepository (trajnost
+'           je apstrahirana). Slojevi su razdvojeni na aplikacijski i domenski.
+' Autor:    Vlado Sruk, kolegij Programsko inženjerstvo
+' AI:       Dijagram je izradio autor. AI je pomogao u reviziji i komentarima;
+'           autor ih je pregledao i odgovara za konačni sadržaj.
+' Praćenje: Model je polazište za implementaciju. Kad se dizajn promijeni
+'           tijekom razvoja, ažurirati model; nazivi operacija su konceptualni.
 '
 ' Diagram level: Structural / Domain Design
 ' Diagram type:  Class Diagram
+' Version:       1.3
 ' ==============================================================================
+
 @startuml
+title Sustav CrisisMap – domenski model prijave
 
 skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam packageStyle rectangle
+skinparam ArrowColor #212529
 
-' ==============================================================================
-' Application Layer 
-' Orchestrates use cases and delegates to the domain.
-' ==============================================================================
-package "Application Layer" {
-  
-  class ReportWorkflow <<Service>> {
-    +submit(location: Location, severity: Severity): DisasterReport
-    +approve(reportId: UUID): void
-    +reject(reportId: UUID, reason: String): void
-    +close(reportId: UUID): void
-  }
-  
+skinparam class {
+    BackgroundColor #E7F1FF
+    BorderColor #0D6EFD
+}
+
+skinparam note {
+    BackgroundColor #F8F9FA
+    BorderColor #212529
+    FontColor #212529
 }
 
 ' ==============================================================================
-' Domain Layer 
-' Encapsulates core business state, rules, and logic.
+' Aplikacijski sloj: orkestrira slučajeve korištenja i delegira domeni.
 ' ==============================================================================
-package "Domain Layer" {
+package "Aplikacijski sloj" {
 
+  class ReportService <<ApplicationService>> {
+    +submit(): UUID
+    +approve(): void
+    +reject(): void
+    +close(): void
+  }
+
+}
+
+' ==============================================================================
+' Domenski sloj: sadrži poslovno stanje i pravila.
+' ==============================================================================
+package "Domenski sloj" {
+
+  ' Korisnik i kategorija su drugi agregati, pa se referenciraju samo
+  ' identifikatorom (submitterId, categoryId), a ne objektom. Location i Photo
+  ' su dijelovi agregata i prikazani su kompozicijom, a ne atributima.
   class DisasterReport <<Entity>> <<AggregateRoot>> {
     -id: UUID
-    -status: ReportStatus
+    -submitterId: UUID
+    -categoryId: UUID
+    -description: String
     -severity: Severity
+    -status: ReportStatus
+    -submittedAt: DateTime
+    -rejectionReason: String [0..1]
     +approve(): void
     +reject(reason: String): void
     +close(): void
   }
-  
+
   class Location <<ValueObject>> {
-    +latitude: Decimal
-    +longitude: Decimal
+    -latitude: Decimal {readOnly}
+    -longitude: Decimal {readOnly}
   }
-  
-  enum ReportStatus <<Enum>> {
+
+  class Photo <<Entity>> {
+    -id: UUID
+    -url: String
+  }
+
+  enum ReportStatus {
     SUBMITTED
     VISIBLE
     REJECTED
     CLOSED
   }
-  
-  enum Severity <<Enum>> {
+
+  enum Severity {
     LOW
     MEDIUM
     HIGH
   }
-  
+
   interface ReportRepository <<Repository>> {
     +findById(id: UUID): DisasterReport
     +save(report: DisasterReport): void
   }
-  
+
 }
 
 ' ==============================================================================
-' Structural Relationships & Multiplicities
+' Veze i višestrukosti
 ' ==============================================================================
 
-' Composition mapping (Value Object lifecycle is bound to the Entity)
-DisasterReport "1" *-- "1" Location : has ►
+' Location je value object, a Photo ima smisla samo uz prijavu: životni ciklus
+' im je vezan uz prijavu (kompozicija).
+DisasterReport "1" *-- "1" Location : sadrži ►
+DisasterReport "1" *-- "0..*" Photo : sadrži ►
 
-' Application Service dependencies on the Domain
-ReportWorkflow "1" --> "0..*" DisasterReport : creates / changes ►
-ReportWorkflow "1" --> "1" ReportRepository : loads / saves ►
+' Servis ovisi o sučelju repozitorija, a ne o konkretnoj implementaciji.
+ReportService ..> DisasterReport : stvara / mijenja ►
+ReportService ..> ReportRepository : učitava / sprema ►
+ReportRepository ..> DisasterReport : vraća / sprema ►
 
 ' ==============================================================================
-'  Constraints
+' Ograničenja
 ' ==============================================================================
 
 note right of DisasterReport
-  Valid state transitions:
+  Nova prijava nastaje sa statusom SUBMITTED
+  i vremenom podnošenja; pri stvaranju se
+  provjeravaju invarijante (ValidationException).
+
+  Dopušteni prijelazi stanja:
   - approve() : SUBMITTED -> VISIBLE
   - reject()  : SUBMITTED -> REJECTED
+                (sprema rejectionReason)
   - close()   : VISIBLE   -> CLOSED
+  REJECTED i CLOSED su završna stanja.
 
-  Status must only be changed using these 
-  methods to protect data integrity.
-
+  Status se smije mijenjati samo ovim
+  metodama radi očuvanja integriteta podataka.
+  Nedopušteni prijelaz se odbija pogreškom.
 end note
 
+note right of Location
+  Nepromjenjiv. Invarijante:
+  latitude u [-90, 90],
+  longitude u [-180, 180];
+  inače ValidationException.
+end note
+
+note bottom of ReportService
+  approve() i reject() smije izvesti moderator
+  (slučaj korištenja Moderiranje prijave).
+  Provjera dopuštenja je u aplikacijskom sloju.
+  Nazivi operacija su konceptualni
+  (u dijagramu 4-4: validateAndSubmit()).
+end note
 
 @enduml

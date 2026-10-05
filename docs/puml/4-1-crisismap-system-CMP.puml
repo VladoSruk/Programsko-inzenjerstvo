@@ -1,96 +1,69 @@
 ' ==============================================================================
-' @file 4-1-crisismap-architecture.puml
-' @brief High-level component architecture for the Crisis Map platform.
+' 4-1-crisismap-system-CMP.puml
 '
-' @details
-' This artifact defines the principal structural components required to support 
-' the Crisis Map system. The model captures the overarching software architecture, 
-' encompassing the client applications, API gateways, core microservices/modules, 
-' database layers, and external third-party integrations (e.g., mapping, SMS).
+' Svrha:    Prikazuje glavne komponente sustava CrisisMap, njihove ovisnosti i
+'           vanjske sustave s kojima komuniciraju (kartografske pločice, FCM).
+'           Klase, metode i fizička mrežna topologija namjerno nisu
+'           obuhvaćeni (vidi dijagrame 4-3 i 6-1).
+' Autor:    Vlado Sruk, kolegij Programsko inženjerstvo
+' AI:       Dijagram je izradio autor. AI je pomogao u reviziji i komentarima;
+'           autor ih je pregledao i odgovara za konačni sadržaj.
+' Praćenje: Komponente treba uskladiti sa strukturom repozitorija i
+'           implementiranim uslugama; pri promjeni arhitekture ažurirati model.
 '
-' Architectural Scope & Rationale:
-' This model is explicitly scoped to the macro-architecture tier. It focuses 
-' on identifying bounded contexts, system modularity, and communication protocols. 
-' Code-level class structures, internal method implementations, and physical 
-' network topologies are deliberately deferred to lower-level design phases.
-'
-' System Requirements Addressed:
-' This model establishes the structural foundation of the application by defining:
-' - The separation of concerns across presentation, logic, and data layers.
-' - The interfaces and dependencies between core backend modules.
-' - The integration points with external APIs and services.
-' - The architectural constraints governing scalability and maintainability.
-'
-' Author(s): Vlado Sruk
-' Context: Software Engineering Course
-'
-' AI Usage Disclosure:
-' Designed by Vlado Sruk. AI-assisted revision and documentation comments were
-' reviewed by the author, who is responsible for the final content.
-'
-' Traceability Note:
-' The architectural components defined herein must strictly map to the finalized 
-' repository structure and deployed services. Any architectural deviations 
-' introduced during development must be retroactively updated in this model to 
-' maintain evidence chain completeness from requirements to code.
-'
-' Diagram type: UML Component Diagram
-' Abstraction:  High-level logical architecture
-' Viewpoint:    Software structure and component dependencies
+' Diagram level: High-level logical architecture
+' Diagram type:  UML Component Diagram
+' Version:       1.3
 ' ==============================================================================
 
 @startuml
-
-' ==============================================================================
-' Diagram Layout and Style
-' ==============================================================================
-
+title Sustav CrisisMap – komponente
 left to right direction
 
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam packageStyle rectangle
 skinparam componentStyle rectangle
+skinparam ArrowColor #212529
 
 skinparam component {
     BackgroundColor #E7F1FF
     BorderColor #0D6EFD
-    ArrowColor #212529
 }
 
 skinparam database {
-    BackgroundColor   #FFF3CD
+    BackgroundColor #FFF3CD
     BorderColor #212529
 }
 
 ' ==============================================================================
-' Crisis Map System Boundary and Internal Components
+' Granica sustava i unutarnje komponente
 ' ==============================================================================
 
-rectangle "Crisis Map System" {
-  component "Web client" as Web
-  rectangle "Backend application" {
-    component "Report API" as API
-    component "Report service" as Reports
-    component "Notification worker" as Notify
+rectangle "Sustav CrisisMap" {
+  component "Web-klijent" as Web
+  rectangle "Poslužiteljska aplikacija" {
+    component "API za prijave" as API
+    component "Usluga za prijave" as Reports
+    component "Proces za obavijesti" as Notify
   }
   database "PostgreSQL" as DB
 }
-' ==============================================================================
-' External Systems
-' ==============================================================================
-
-component "Map tile provider\n(external)" as Maps
-component "Firebase Cloud Messaging\n(external)" as FCM
 
 ' ==============================================================================
-' Component Dependencies and Interfaces
+' Vanjski sustavi
 ' ==============================================================================
 
-Web --> API : report requests / responses
-Web --> Maps : map tiles
-API --> Reports : submit and retrieve reports
-Reports --> DB : store and query reports
-Notify --> DB : find confirmed reports\nand recipients
-Notify --> FCM : send notification requests
+component "Pružatelj kartografskih pločica\n(vanjski)" as Maps
+component "Firebase Cloud Messaging\n(vanjski)" as FCM
+
+' ==============================================================================
+' Ovisnosti i sučelja
+' ==============================================================================
+
+Web --> API : zahtjevi i odgovori za prijave
+Web --> Maps : kartografske pločice
+API --> Reports : podnošenje i dohvat prijava
+Reports --> DB : pohrana i dohvat prijava
+Notify --> DB : odabir potvrđenih prijava\ni primatelja
+Notify --> FCM : zahtjevi za slanje obavijesti
 @enduml

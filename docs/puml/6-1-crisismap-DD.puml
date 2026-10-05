@@ -1,120 +1,120 @@
 ' ==============================================================================
-' @file 6-1-crisismap-deployment.puml
-' @brief Formal UML Deployment diagram with explicit communication and dependency paths.
+' 6-1-crisismap-DD_v1.puml
 '
-' @details
-' This artifact unifies the physical node topology with both runtime communication 
-' protocols (HTTPS/TCP) and configuration dependencies (environment variables). 
-' It utilizes strict UML 2.x stereotypes to map the written Render setup 
-' instructions directly to the visual architecture.
-'
-' Architectural Scope & Rationale:
-' By combining communication lines (-->) and dependency lines (..>), this diagram 
-' serves as a complete configuration blueprint. It proves that the architecture 
-' is secure (via internal database routing) and explicitly lists the environment 
-' variables required for the artifacts to function[cite: 3].
-'
-' Author(s): Vlado Sruk
-' Context: Software Engineering Course / Project Documentation
-'
-' AI Usage Disclosure:
-' Designed by Vlado Sruk. Generative AI tools were utilized for structural UML 
-' formalization and documentation comments. The author has validated and modified 
-' all AI-generated outputs, assuming full responsibility for the architectural logic.
-'
-' Traceability Note (Sljedivost):
-' The ports, protocols, and configuration dependencies (<<configuration>>) defined 
-' herein must strictly match the project's actual production environment variables 
-' configured in Render[cite: 3]. Any deviations must be retroactively updated to 
-' maintain evidence chain completeness (lanac dokazne zatvorenosti).
+' Svrha:    Prikazuje čvorove na platformi Render, razmještene artefakte,
+'           komunikacijske putove (HTTPS/TCP) i odabrane konfiguracijske
+'           vrijednosti uz artefakte na koje se odnose. Razlikuje javne putove
+'           od interne veze s bazom. Ne predstavlja potpunu specifikaciju
+'           konfiguracije niti dokaz sigurnosti sustava.
+' Autor:    Vlado Sruk, kolegij Programsko inženjerstvo / projektna dokumentacija
+' AI:       AI je pomogao u UML formalizaciji i komentarima; autor je sve
+'           provjerio i izmijenio te odgovara za arhitekturnu logiku.
+' Praćenje: Portovi, protokoli, veze razmještaja i konfiguracijske vrijednosti
+'           trebaju odgovarati stvarnoj konfiguraciji; pri promjeni produkcijske
+'           topologije ažurirati model.
 '
 ' Diagram level: Physical Deployment Architecture
 ' Diagram type:  Deployment Diagram
+' Version:       1.3
 ' ==============================================================================
 
 @startuml
+title Sustav CrisisMap – razmještaj na platformi Render
 
+skinparam shadowing false
 skinparam defaultFontName Arial
+skinparam ArrowColor #212529
+
 skinparam node {
-    BackgroundColor White
-    BorderColor DarkSlateGray
+    BackgroundColor #FFFFFF
+    BorderColor #212529
 }
+
+skinparam cloud {
+    BackgroundColor #F8F9FA
+    BorderColor #212529
+}
+
 skinparam artifact {
-    BackgroundColor LightYellow
-    BorderColor DarkGoldenRod
+    BackgroundColor #E7F1FF
+    BorderColor #0D6EFD
 }
+
+skinparam database {
+    BackgroundColor #FFF3CD
+    BorderColor #212529
+}
+
 skinparam note {
-    BackgroundColor LightCyan
-    BorderColor DarkCyan
+    BackgroundColor #F8F9FA
+    BorderColor #212529
+    FontColor #212529
 }
 
 ' ==============================================================================
-' Nodes, Environments, and Configuration Artifacts
+' Čvorovi, okruženja i razmješteni artefakti
 ' ==============================================================================
-node "Citizen Device" as Device <<device>> {
-  node "Web Browser" as Browser <<executionEnvironment>>
+node "Korisnički uređaj" as Device <<device>> {
+  node "Web-preglednik" as Browser <<executionEnvironment>>
 }
 
-cloud "Render Platform" as Render {
-  
-  node "Static Site Host" as Static <<executionEnvironment>> {
-    artifact "Web Client Build" as Frontend <<artifact>>
-    artifact "VITE_API_BASE_URL" as FrontendEnv <<configuration>>
-    
-    ' Dependency: Frontend requires the public API URL
-    Frontend ..> FrontendEnv : <<requires>>
+cloud "Platforma Render" as Render {
+
+  node "Okruženje statičkog web-mjesta" as Static <<executionEnvironment>> {
+    artifact "Izgrađeni web-klijent" as Frontend <<artifact>>
   }
-  
-  node "Backend Web Service" as Service <<executionEnvironment>> {
-    node "Node.js Runtime" as NodeEngine <<executionEnvironment>> {
-      artifact "Backend Application" as Backend <<artifact>>
+
+  note right of Frontend
+    Konfiguracija pri izgradnji:
+    VITE_API_BASE_URL određuje
+    javnu adresu poslužiteljskog API-ja.
+  end note
+
+  node "Poslužiteljska web-usluga" as Service <<executionEnvironment>> {
+    node "Izvršno okruženje Node.js" as NodeEngine <<executionEnvironment>> {
+      artifact "Poslužiteljska aplikacija" as Backend <<artifact>>
     }
-    artifact "DATABASE_URL" as BackendEnv <<configuration>>
-    
-    ' Dependency: Backend requires the runtime and the secret DB URL
-    Backend ..> BackendEnv : <<requires>>
+
     Backend ..> NodeEngine : <<deploy>>
   }
-  
-  database "Managed PostgreSQL" as DB <<database>> {
-    artifact "001_create_schema.sql" as Schema <<artifact>>
-  }
+
+  note right of Backend
+    Varijabla okruženja DATABASE_URL
+    određuje internu vezu s bazom podataka.
+  end note
+
+  database "Upravljani PostgreSQL" as DB <<database>>
 }
 
-cloud "External Providers" as External {
-  node "Map Tile Service" as Maps <<server>>
+cloud "Vanjski pružatelji" as External {
+  node "Usluga kartografskih pločica" as Maps <<server>>
   node "Firebase Cloud Messaging" as FCM <<server>>
+  node "Pružatelj identiteta (OAuth)" as IdP <<server>>
 }
 
 ' ==============================================================================
-' Operational Dependencies across Nodes
-' ==============================================================================
-' Dependency: Backend cannot operate unless the DB schema is applied first
-Backend ..> Schema : <<dependsOn>>
-
-' ==============================================================================
-' Active Communication Paths (Live Network Traffic)
+' Komunikacijski putovi (stvarni mrežni promet)
 ' ==============================================================================
 
-' 1. Public Asset Delivery
-Browser -[#blue]-> Static : <<HTTPS : 443>> \n fetch static assets
+' 1. Isporuka statičkih datoteka (javno)
+Browser -[#blue]-> Static : <<HTTPS : 443>> \n dohvat statičkih datoteka
 
-' 2. Public API Traffic
-Browser -[#blue]-> Service : <<HTTPS : 443>> \n REST / JSON payload
+' 2. Javni API promet
+Browser -[#blue]-> Service : <<HTTPS : 443>> \n REST / JSON
 note on link
-  Service listens on 0.0.0.0 
-  via Render's dynamic PORT[cite: 3].
+  Usluga sluša na 0.0.0.0
+  na dinamičkom portu platforme Render.
 end note
 
-' 3. Internal Database Routing
-Service -[#green,bold]-> DB : <<TCP/IP : 5432>> \n connection pool
+' 3. Interna veza s bazom
+Service -[#green,bold]-> DB : <<TCP/IP : 5432>> \n skup veza
 note on link
-  Uses Render's internal connection URL.
-  Not exposed to the public internet[cite: 3].
+  Koristi internu vezu s bazom platforme Render.
+  Nije izložena javnom internetu.
 end note
 
-' 4. Outbound Third-Party API Traffic
-Service -[#darkorange]-> FCM : <<HTTPS : 443>> \n async push trigger
-Browser -[#darkorange]-> Maps : <<HTTPS : 443>> \n fetch map tiles
-
+' 4. Odlazni promet prema vanjskim pružateljima
+Service -[#darkorange]-> FCM : <<HTTPS : 443>> \n zahtjev za slanje obavijesti
+Browser -[#darkorange]-> Maps : <<HTTPS : 443>> \n dohvat kartografskih pločica
+Browser -[#darkorange]-> IdP : <<HTTPS : 443>> \n prijava u sustav
 @enduml
