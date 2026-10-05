@@ -26,8 +26,6 @@ Ovaj projekt slijedi FER-ova [pravila o primjerenoj uporabi umjetne inteligencij
 
 **Etika, sigurnost i provjera:** Radi točnosti i sigurnosti podataka, sva dokumentacija izrađena uz pomoć umjetne inteligencije neovisno je pregledana i provjerena prije objave. Provjereno je da sadržaj poštuje povjerljivost korisnika i da ne uvodi neprovjerene pristranosti.
 
-**Usklađenost:** Uporaba Geminija usklađena je s etičkim pravilima projekta, a njegova je pomoć odgovarajuće navedena u dokumentacijskom procesu.
-
 ## Kodeks ponašanja
 
 Od studenata se očekuje pridržavanje minimalnih standarda prihvatljivog ponašanja definiranih **Kodeksom ponašanja studenata Fakulteta elektrotehnike i računarstva Sveučilišta u Zagrebu**. Također se očekuje pridržavanje [Etičkog kodeksa IEEE-a](https://www.ieee.org/about/corporate/governance/p7-8.html), koji postavlja visoke standarde integriteta, odgovornog i etičnog profesionalnog ponašanja.
@@ -50,4 +48,4 @@ Predložak služi kao polazište, a ne ograničenje. Timovi ga mogu prilagoditi 
 
 ## Citiranje
 
-Ako koristite ili prilagođavate ovaj repozitorij, citirajte ga prema datoteci [`citation.cff`](citation.cff). GitHubova naredba **Cite this repository** automatski čita tu datoteku.
+Ako koristite ili prilagođavate ovaj repozitorij, citirajte ga prema datoteci [`CITATION.cff`](citation.cff). GitHubova naredba **Cite this repository** automatski čita tu datoteku.
